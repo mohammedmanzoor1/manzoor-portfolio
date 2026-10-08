@@ -585,10 +585,17 @@ body.is-ready .scroll-cue { animation-delay: 0.7s; }
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #fff;
   font-size: 0.65rem;
+  line-height: 1;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   width: max-content;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transform: translateZ(22px);
 }
 
 /* Hero photo orbit rings: both visible as animated ellipses. */
@@ -4907,3 +4914,12 @@ body[data-theme="light"] .hero-photo-wrap .orbit-two {
     background: transparent !important;
   }
 }
+
+
+/* FINAL PROFILE TAG FLIP FIX — the role badge belongs to the photo face, not the outer flip wrapper. */
+.photo-card-front .photo-tag {
+  position: absolute;
+  z-index: 4;
+  pointer-events: none;
+}
+.photo-face-back .photo-tag { display: none !important; }
