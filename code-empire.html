@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark"><meta name="theme-color" content="#0d1117"><title>Code Empire: Idle Dev Career Tycoon</title>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--line:#30363d;--fg:#e6edf3;--mut:#8b949e;--g:#4af626;--gd:#39c71e;--gold:#ffd166;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#0d1117}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:'Courier New',monospace;background:var(--bg);color:var(--fg);padding:14px;display:flex;justify-content:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
+.w{width:100%;max-width:520px;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:18px;position:relative}
+header{text-align:center;border-bottom:2px dashed var(--g);padding-bottom:12px;margin-bottom:14px}
+h1{color:var(--g);margin:0;font-size:1.5rem}
+.rank{color:var(--gold);font-size:.85rem;margin-top:4px}
+.stats{text-align:center;margin-bottom:10px}
+.cnt{font-size:2.2rem;font-weight:bold;display:block}
+.sub{color:var(--mut);font-size:.8rem}
+.bar{height:10px;background:#0006;border:1px solid var(--line);border-radius:6px;overflow:hidden;margin:10px 0 4px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gd),var(--g));transition:width .2s}
+.zone{display:flex;justify-content:center;margin:16px 0}
+#code{width:160px;height:160px;border-radius:50%;background:linear-gradient(145deg,#252b33,#12161c);border:4px solid var(--g);color:var(--g);font:bold 1.1rem 'Courier New',monospace;cursor:pointer;box-shadow:0 0 18px #4af62633;transition:transform .05s}
+#code:active{transform:scale(.94);box-shadow:0 0 28px #4af62699}
+.t{color:var(--g);font-size:1rem;border-bottom:1px solid var(--line);padding-bottom:4px;margin:14px 0 8px}
+.it{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#0d1117;padding:10px;border-radius:6px;border:1px solid var(--line);margin-bottom:8px}
+.it b{font-size:.9rem}.it small{display:block;color:var(--mut);font-size:.72rem;margin-top:2px}
+.buy{min-width:96px;background:#21262d;color:var(--mut);border:1px solid var(--line);padding:8px 10px;border-radius:4px;font:bold .8rem 'Courier New',monospace;cursor:not-allowed}
+.buy.ok{background:var(--g);color:#0d1117;border-color:var(--g);cursor:pointer}
+.ach{display:flex;flex-wrap:wrap;gap:6px}
+.ach span{font-size:.7rem;padding:4px 8px;border:1px solid var(--line);border-radius:12px;color:var(--mut);opacity:.5}
+.ach span.on{color:var(--gold);border-color:var(--gold);opacity:1}
+#tick{font-size:.72rem;color:var(--mut);text-align:center;margin-top:8px;min-height:1.2em}#buff{display:none;text-align:center;color:#0d1117;background:var(--gold);border-radius:6px;padding:4px;font-weight:bold;font-size:.85rem;margin-top:8px}.act{width:100%;padding:10px;border-radius:6px;border:1px solid var(--line);background:#21262d;color:var(--mut);font:bold .85rem "Courier New",monospace;cursor:not-allowed;margin-bottom:8px}.act.ok{background:var(--g);color:#0d1117;border-color:var(--g);cursor:pointer}.act.gold.ok{background:var(--gold);border-color:var(--gold)}.fl{position:fixed;pointer-events:none;color:var(--g);font-weight:bold;animation:up .8s ease-out forwards;z-index:9}
+@keyframes up{to{transform:translateY(-60px);opacity:0}}
+#bug{position:fixed;font-size:2.6rem;cursor:pointer;display:none;z-index:8;animation:wob .4s infinite alternate}
+@keyframes wob{to{transform:rotate(18deg) scale(1.1)}}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--card);border:1px solid var(--gold);color:var(--gold);padding:8px 14px;border-radius:8px;font-size:.85rem;opacity:0;transition:opacity .3s;z-index:10;pointer-events:none;text-align:center}
+#toast.s{opacity:1}
+html{-webkit-text-size-adjust:100%}button{-webkit-appearance:none;appearance:none;touch-action:manipulation}
+.it{flex-wrap:wrap}.it>div{flex:1 1 150px;min-width:0;overflow-wrap:anywhere}.buy{min-height:40px}
+.th{padding:8px 12px;border-radius:16px;border:1px solid var(--line);background:#21262d;color:var(--fg);font:.75rem "Courier New",monospace;cursor:pointer;min-height:38px}.th.on{border-color:var(--g);color:var(--g)}.th.lock{opacity:.4;cursor:not-allowed}
+#code:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media (max-width:360px){.w{padding:12px}#code{width:140px;height:140px}.cnt{font-size:1.8rem}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="w">
+<header><h1>💻 CODE EMPIRE</h1><div class="rank" id="rank">Rank: Intern</div><div class="sub" id="era">Era: Bedroom Startup</div><div id="tick"></div></header>
+<div class="stats">Lines of Code<span class="cnt" id="loc">0</span>
+<span class="sub"><span id="lps">0</span> LoC/sec · <span id="cp">1</span> per click</span></div>
+<div id="buff"></div><div class="bar"><i id="pg"></i></div>
+<div class="sub" id="pgt" style="text-align:center"></div>
+<div class="zone"><button id="code">⌨️<br>WRITE CODE</button></div>
+<div class="t">🎯 MISSION</div><div class="it"><div><b id="mt"></b><small id="mp"></small></div></div><div class="t">⚡ CLICK UPGRADES</div><div id="clk"></div>
+<div class="t">🏢 DEV TEAM</div><div id="gen"></div>
+<div class="t">🧰 TOOLS (one-time)</div><div id="upg"></div><div class="t">☕ ABILITIES</div><button class="act" id="cof">☕ Caffeine Rush</button><div class="t">🚀 SHIP A RELEASE</div><div class="sub" id="repi" style="margin-bottom:6px"></div><button class="act gold" id="rel"></button><div class="t">🏆 ACHIEVEMENTS</div><div class="ach" id="ach"></div>
+<div class="t">⚙️ SETTINGS</div><div class="ach" id="thm"></div>
+<div style="display:flex;gap:8px;margin:10px 0"><button class="act ok" id="snd" style="margin:0"></button><button class="act ok" id="rst" style="margin:0">Reset game</button></div>
+<div class="sub" id="stat"></div><div class="sub" style="margin-top:6px">Progress lasts only for this browser session. Nothing about visitors is stored or sent anywhere.</div><div class="sub" style="margin-top:6px">Keys: Space = code · C = caffeine</div>
+</div>
+<div id="bug">🐞</div>
+<div id="toast"></div>
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>{n=Math.floor(n);if(n<1e4)return n.toLocaleString();const u=['K','M','B','T','Qa','Qi','Sx','Sp'];let i=-1;let v=n;while(v>=1000&&i<7){v/=1000;i++}return v.toFixed(2)+u[i]};
+const CLICKS=[
+ {n:'Mechanical Keyboard',d:'+1 per click',base:50,g:1.7,add:1},
+ {n:'Dual Monitors',d:'+5 per click',base:600,g:1.8,add:5},
+ {n:'Energy Drink IV',d:'+40 per click',base:8000,g:1.9,add:40},{n:'Neural Implant',d:'+400 per click',base:250000,g:2,add:400}];
+const GENS=[
+ {n:'StackOverflow Copypasta',p:1,base:15},{n:'AI Code Assistant',p:8,base:100},
+ {n:'Junior Developer',p:50,base:1100},{n:'Senior Developer',p:260,base:12000},
+ {n:'DevOps Bot Army',p:1400,base:130000},{n:'Quantum Compiler',p:7800,base:1400000},{n:'Cloud Datacenter',p:44000,base:2e7},{n:'Neural Intern Swarm',p:260000,base:3.3e8},{n:'Time-Travel Compiler',p:1600000,base:5.1e9}];
+const RANKS=[[0,'Intern'],[100,'Junior Dev'],[1000,'Mid-level Dev'],[10000,'Senior Dev'],[100000,'Tech Lead'],[1e6,'Architect'],[1e7,'CTO'],[1e9,'Tech Billionaire'],[1e11,'Digital God']];
+const ACH=[
+ ['First Commit',s=>s.total>=1],['Hello World 100',s=>s.total>=100],['1K Club',s=>s.total>=1000],
+ ['Automation!',s=>s.lps>=10],['Full Stack',s=>s.g.filter(x=>x>0).length>=3],
+ ['Bug Squasher',s=>s.bugs>=3],['Code Machine',s=>s.lps>=1000],['10K Legend',s=>s.total>=10000],['Shipped It',s=>s.rep>=1],['Caffeinated',s=>s.cof>=1],['Hackathon Hero',s=>s.rep>=5],['Millionaire',s=>s.total>=1e6],['Toolsmith',s=>s.u>=4],['Sky High',s=>s.g[8]>0],['Ultimate Dev',s=>s.total>=1e9]];
+let S={loc:0,total:0,bugs:0,c:CLICKS.map(()=>0),g:GENS.map(()=>0),a:[],rep:0,run:0,cof:0,u:[],clicks:0,th:0,snd:0,t:0,play:0,m:0};
+let buff={m:1,until:0},cofAt=0,armed=false;
+try{const r=sessionStorage.getItem('rt2');if(r){const o=JSON.parse(r);S={...S,...o}}}catch(e){}
+S.c=CLICKS.map((_,i)=>+S.c[i]||0);S.g=GENS.map((_,i)=>+S.g[i]||0);if(!Array.isArray(S.u))S.u=[];if(!Array.isArray(S.a))S.a=[];['loc','total','run','rep','clicks','play','m'].forEach(k=>{if(!isFinite(S[k]))S[k]=0});
+const cost=(x,n,gr)=>Math.floor(x.base*Math.pow(gr,n));
+const gm=()=>S.u.reduce((a,k)=>a*(GM[k]||1),1);
+const mul=()=>(1+0.1*S.rep)*(Date.now()<buff.until?buff.m:1)*gm()*eraM();
+const cpow=()=>(1+CLICKS.reduce((a,x,i)=>a+x.add*S.c[i],0))*mul()*(S.u.includes('duck')?2:1);
+const lps=()=>GENS.reduce((a,x,i)=>a+x.p*S.g[i],0)*mul();
+const gain=n=>{S.loc+=n;S.total+=n;S.run+=n};
+const setBuff=(m,sec)=>{buff.m=m;buff.until=Date.now()+sec*1000};
+const relGain=()=>Math.floor(Math.sqrt(S.run/25000));
+function mk(list,box,kind,gr){
+ list.forEach((x,i)=>{
+  const d=document.createElement('div');d.className='it';
+  d.innerHTML=`<div><b>${x.n}</b><small>${x.d||'+'+x.p+' LoC/sec'} · Owned: <span id="${kind}o${i}">0</span></small></div><button class="buy" id="${kind}b${i}"></button>`;
+  box.appendChild(d);
+  $(kind+'b'+i).addEventListener('click',()=>{
+   const arr=kind==='c'?S.c:S.g,c=cost(x,arr[i],x.g||1.15);
+   if(S.loc>=c){S.loc-=c;arr[i]++;ui()}
+  });
+ });
+}
+mk(CLICKS,$('clk'),'c');mk(GENS,$('gen'),'g');
+$('ach').innerHTML=ACH.map((a,i)=>`<span id="a${i}">${a[0]}</span>`).join('');
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('s');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('s'),2200)}
+function float(x,y,t){const f=document.createElement('div');f.className='fl';f.textContent=t;f.style.left=x+'px';f.style.top=y+'px';document.body.appendChild(f);setTimeout(()=>f.remove(),800)}
+function ui(){
+ const L=lps();
+ const now=Date.now(),bl=(buff.until-now)/1000;
+ const bf=$('buff');bf.style.display=bl>0?'block':'none';if(bl>0)bf.textContent='🔥 x'+buff.m+' BOOST — '+Math.ceil(bl)+'s';
+ const cl=(cofAt-now)/1000,ce=$('cof');ce.classList.toggle('ok',cl<=0);ce.textContent=cl>0?'☕ Recharging… '+Math.ceil(cl)+'s':'☕ Caffeine Rush (x2 for 10s)';
+ const rg=relGain(),rb=$('rel');rb.classList.toggle('ok',rg>=1);
+ $('repi').textContent='Reputation ⭐ '+S.rep+' (+'+(S.rep*10)+'% all production). Reset progress to earn ⭐ from this run’s LoC.';
+ rb.textContent=rg<1?'Need '+fmt(25000)+' LoC this run ('+fmt(S.run)+')':(armed?'Tap again to confirm: +'+rg+' ⭐':'Ship release: +'+rg+' ⭐');
+ $('loc').textContent=fmt(S.loc);$('lps').textContent=fmt(L);$('cp').textContent=fmt(cpow());
+ CLICKS.forEach((x,i)=>{$('co'+i).textContent=S.c[i];const c=cost(x,S.c[i],x.g);$('cb'+i).textContent='⌨ '+fmt(c);$('cb'+i).classList.toggle('ok',S.loc>=c)});
+ GENS.forEach((x,i)=>{$('go'+i).textContent=S.g[i];const c=cost(x,S.g[i],1.15);$('gb'+i).textContent='⌨ '+fmt(c);$('gb'+i).classList.toggle('ok',S.loc>=c)});
+ let r=RANKS[0][1];RANKS.forEach(k=>{if(S.total>=k[0])r=k[1]});$('rank').textContent='Rank: '+r;
+ const ei=eraI(),ne=ERAS[ei+1],p=ne?(S.total-ERAS[ei][0])/(ne[0]-ERAS[ei][0]):1;$('pg').style.width=(Math.max(0,Math.min(1,p))*100)+'%';
+ $('pgt').textContent=ne?'Next era: '+ne[1]+' at '+fmt(ne[0])+' LoC ('+Math.floor(Math.max(0,p)*100)+'%)':'Max era reached: Big Tech Campus!';
+ const st={total:S.total,lps:L,g:S.g,bugs:S.bugs,rep:S.rep,cof:S.cof,u:S.u.length};
+ ACH.forEach((a,i)=>{const on=a[1](st);$('a'+i).classList.toggle('on',on);if(on&&!S.a.includes(i)){S.a.push(i);toast('🏆 '+a[0]);beep(880,.15)}});
+ ui2();
+}
+$('code').addEventListener('pointerdown',e=>{
+ e.preventDefault();hit(e.clientX,e.clientY)});
+$('code').addEventListener('click',e=>{if(e.detail===0){const r=$('code').getBoundingClientRect();hit(r.left+r.width/2,r.top+20)}});
+setInterval(tick,100);
+$('cof').addEventListener('click',()=>{if(Date.now()>=cofAt){S.cof++;setBuff(2,10);cofAt=Date.now()+45000;toast('☕ Caffeine Rush!');ui()}});
+$('rel').addEventListener('click',()=>{const g=relGain();if(g<1)return;
+ if(!armed){armed=true;ui();setTimeout(()=>{armed=false;ui()},3000);return}
+ armed=false;S.rep+=g;S.loc=0;S.run=0;S.c=CLICKS.map(()=>0);S.g=GENS.map(()=>0);toast('🚀 Released! +'+g+' ⭐ reputation');ui()});
+const NEWS=['Standup ran 45 minutes. Nothing was decided.','Prod deploy on a Friday. Bold.','Someone named a variable "temp2_final_REAL".','The intern fixed the bug by deleting the test.','It works on my machine.','A 2 AM merge conflict appears.','Tabs vs spaces: the war continues.','PM asks: "Can we just add AI?"','Coffee machine is down. Morale −50%.','You mass-renamed a function. Nobody noticed.'];
+setInterval(()=>{$('tick').textContent='📰 '+NEWS[Math.floor(Math.random()*NEWS.length)]},7000);$('tick').textContent='📰 '+NEWS[0];
+setInterval(ui,250);
+function save(){try{S.t=Date.now();sessionStorage.setItem('rt2',JSON.stringify(S))}catch(e){}}
+setInterval(save,5000);addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
+// Random bug event
+function spawnBug(){
+ const b=$('bug');b.style.left=(10+Math.random()*75)+'%';b.style.top=(15+Math.random()*65)+'%';b.style.display='block';
+ clearTimeout(spawnBug.h);spawnBug.h=setTimeout(()=>{b.style.display='none'},6000);
+}
+$('bug').addEventListener('pointerdown',e=>{
+ e.preventDefault();S.bugs++;$('bug').style.display='none';clearTimeout(spawnBug.h);
+ if(Math.random()<.5){const r=Math.max(100,Math.floor(lps()*30));gain(r);toast('🐞 Bug squashed! +'+fmt(r)+' LoC')}
+ else{setBuff(3,15);toast('🎉 HACKATHON! x3 production for 15s')}
+ ui();
+});
+(function loop(){setTimeout(()=>{spawnBug();loop()},18000+Math.random()*22000)})();
+setTimeout(spawnBug,8000);
+const UPGS=[{id:'duck',n:'Rubber Duck',d:'Clicks x2',c:2000},{id:'lint',n:'Linter',d:'All production x1.25',c:5000},{id:'ci',n:'CI/CD Pipeline',d:'All production x1.5',c:1e5},{id:'k8s',n:'Kubernetes',d:'All production x2',c:5e6},{id:'gpu',n:'GPU Cluster',d:'All production x3',c:2e8}];
+const GM={lint:1.25,ci:1.5,k8s:2,gpu:3};
+const TH=[['Matrix','#4af626','#39c71e',0],['Amber','#ffb000','#e09a00',1],['Ice','#5ec8ff','#3aa8e0',3],['Neon','#ff5fd2','#e040b5',5]];
+UPGS.forEach(u=>{const d=document.createElement('div');d.className='it';d.innerHTML='<div><b>'+u.n+'</b><small>'+u.d+'</small></div><button class="buy" id="ub'+u.id+'"></button>';$('upg').appendChild(d);
+ $('ub'+u.id).addEventListener('click',()=>{if(!S.u.includes(u.id)&&S.loc>=u.c){S.loc-=u.c;S.u.push(u.id);beep(520,.1);ui()}})});
+TH.forEach((t,i)=>{const b=document.createElement('button');b.className='th';b.id='th'+i;b.addEventListener('click',()=>{if(S.rep>=t[3]){S.th=i;applyTh();ui()}});$('thm').appendChild(b)});
+function applyTh(){const t=TH[S.th]||TH[0],r=document.documentElement.style;r.setProperty('--g',t[1]);r.setProperty('--gd',t[2])}
+function beep(f,d){if(!S.snd)return;try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const x=beep.x=beep.x||new A();if(x.state==='suspended')x.resume();const o=x.createOscillator(),g=x.createGain();o.type='square';o.frequency.value=f;g.gain.value=.04;o.connect(g);g.connect(x.destination);o.start();o.stop(x.currentTime+d)}catch(e){}}
+function hit(x,y){let n=cpow();const c=Math.random()<.05;if(c)n*=10;gain(n);S.clicks++;float(x-8,y-20,(c?'CRIT ':'+')+fmt(n));beep(c?660:330,.04);try{navigator.vibrate&&navigator.vibrate(c?25:8)}catch(e){}ui()}
+function ui2(){
+ UPGS.forEach(u=>{const b=$('ub'+u.id),o=S.u.includes(u.id);b.textContent=o?'Owned ✓':'⌨ '+fmt(u.c);b.classList.toggle('ok',!o&&S.loc>=u.c)});
+ TH.forEach((t,i)=>{const b=$('th'+i),lk=S.rep<t[3];b.classList.toggle('lock',lk);b.classList.toggle('on',S.th===i);b.textContent=lk?'🔒 '+t[0]+' ('+t[3]+'⭐)':t[0]});
+ $('snd').textContent=S.snd?'🔊 Sound: on':'🔇 Sound: off';
+ $('stat').textContent='Lifetime '+fmt(S.total)+' LoC · '+fmt(S.clicks)+' clicks · '+S.bugs+' bugs · '+Math.floor(S.play/60)+' min played';ui3();
+}
+let last=Date.now();
+function tick(){const n=Date.now(),dt=(n-last)/1000;last=n;const L=lps();
+ if(dt>5){const g=L*Math.min(dt,14400)*.5;if(g>0){gain(g);toast('👋 Welcome back! +'+fmt(g)+' LoC earned offline')}}
+ else if(dt>0){S.play+=dt;if(L>0)gain(L*dt)}}
+$('snd').addEventListener('click',()=>{S.snd=S.snd?0:1;beep(600,.1);ui()});
+let rArm=0;
+$('rst').addEventListener('click',()=>{
+ if(!rArm){rArm=1;$('rst').textContent='Tap again to reset';setTimeout(()=>{rArm=0;$('rst').textContent='Reset game'},3000);return}
+ rArm=0;$('rst').textContent='Reset game';
+ S={loc:0,total:0,bugs:0,c:CLICKS.map(()=>0),g:GENS.map(()=>0),a:[],rep:0,run:0,cof:0,u:[],clicks:0,th:0,snd:0,t:Date.now(),play:0,m:0};
+ buff.until=0;cofAt=0;fixS();applyTh();save();toast('Game reset');ui()});
+addEventListener('keydown',e=>{if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;const T=document.activeElement&&document.activeElement.tagName;
+ if(e.code==='Space'&&T!=='BUTTON'){e.preventDefault();const r=$('code').getBoundingClientRect();hit(r.left+r.width/2,r.top+20)}
+ else if(e.key==='c'||e.key==='C'){$('cof').click()}});
+function fixS(){S.c=CLICKS.map((_,i)=>+S.c[i]||0);S.g=GENS.map((_,i)=>+S.g[i]||0);if(!Array.isArray(S.u))S.u=[];if(!Array.isArray(S.a))S.a=[];['loc','total','run','rep','clicks','play','m'].forEach(k=>{if(!isFinite(S[k]))S[k]=0})}
+const ERAS=[[0,'Bedroom Startup',1],[5e3,'Garage Startup',1.2],[1e5,'Co-working Space',1.5],[2e6,'Series A Office',2],[5e7,'Unicorn HQ',3],[1e9,'Big Tech Campus',5]];
+const eraI=()=>{let i=0;ERAS.forEach((e,j)=>{if(S.total>=e[0])i=j});return i};
+const eraM=()=>ERAS[eraI()][2];
+const MIS=[['Write 50 lines by hand',()=>S.clicks>=50],['Buy a StackOverflow Copypasta',()=>S.g[0]>=1],['Reach 1,000 total LoC',()=>S.total>=1e3],['Own 5 AI Code Assistants',()=>S.g[1]>=5],['Squash 3 bonus bugs',()=>S.bugs>=3],['Ship your first release',()=>S.rep>=1],['Hire 10 Junior Developers',()=>S.g[2]>=10],['Reach 1,000,000 total LoC',()=>S.total>=1e6]];
+let eraSeen=-1;
+function ui3(){const e=eraI();$('era').textContent='Era: '+ERAS[e][1]+' (x'+ERAS[e][2]+' production)';
+ if(eraSeen>=0&&e>eraSeen)toast('🏢 New era: '+ERAS[e][1]+'! x'+ERAS[e][2]+' production');eraSeen=e;
+ if(S.m<MIS.length&&MIS[S.m][1]()){const r=Math.max(500,Math.floor(lps()*90));gain(r);S.m++;toast('🎯 Mission complete! +'+fmt(r)+' LoC')}
+ if(S.m>=MIS.length){$('mt').textContent='All missions complete! 🎉';$('mp').textContent='You run the empire.'}
+ else{$('mt').textContent=(S.m+1)+'/'+MIS.length+': '+MIS[S.m][0];$('mp').textContent='Reward: about 90 seconds of production (min 500 LoC)'}}
+fixS();
+applyTh();
+if(S.t){const el=(Date.now()-S.t)/1000;if(el>60){const g=lps()*Math.min(el,14400)*.5;if(g>0){gain(g);setTimeout(()=>toast('👋 Welcome back! +'+fmt(g)+' LoC earned offline'),600)}}}
+ui();
+</script>
+</body>
+</html>

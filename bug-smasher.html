@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark"><meta name="theme-color" content="#0d1117">
+<title>Bug Smasher: Server Defense</title>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--line:#30363d;--fg:#e6edf3;--mut:#8b949e;--g:#4af626;--gd:#39c71e;--gold:#ffd166;--red:#ff5555;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}html,body{margin:0}
+body{font-family:'Courier New',monospace;background:var(--bg);color:var(--fg);padding:14px;display:flex;justify-content:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button{-webkit-appearance:none;appearance:none;touch-action:manipulation;font-family:inherit}
+.w{width:100%;max-width:520px;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:18px;transition:border-color .15s}
+.w.hurt{border-color:var(--red)}
+header{text-align:center;border-bottom:2px dashed var(--g);padding-bottom:10px;margin-bottom:12px}
+h1{color:var(--g);margin:0;font-size:1.4rem}.rank{color:var(--gold);font-size:.85rem;margin-top:4px}.sub{color:var(--mut);font-size:.78rem}
+.st{display:flex;justify-content:space-around;text-align:center;margin:8px 0}.st b{display:block;font-size:1.4rem}
+.bar{height:14px;background:#0006;border:1px solid var(--line);border-radius:7px;overflow:hidden;position:relative}
+#up{height:100%;width:100%;background:linear-gradient(90deg,var(--gd),var(--g));transition:width .1s,background .2s}
+#slow{display:none;text-align:center;background:#5ec8ff;color:#0d1117;border-radius:6px;padding:3px;font-weight:bold;font-size:.8rem;margin-top:8px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.hole{aspect-ratio:1/1;min-height:84px;background:#0d1117;border:2px solid var(--line);border-radius:10px;position:relative;overflow:hidden;cursor:pointer;color:var(--fg);padding:0}
+.hole .k{position:absolute;top:3px;left:7px;font-size:.62rem;color:var(--mut);font-style:normal}
+.b{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;font-size:2.2rem;pointer-events:none;animation:pop .15s ease-out}
+.b small{font-size:.62rem;margin-top:2px}
+@keyframes pop{from{transform:scale(.4)}to{transform:scale(1)}}
+.hole.on.bug{border-color:var(--red);box-shadow:0 0 12px #ff555577}.hole.on.bad{border-color:var(--gold);box-shadow:0 0 12px #ffd16677}.hole.on.pow{border-color:#5ec8ff;box-shadow:0 0 12px #5ec8ff77}
+.act{width:100%;padding:12px;border-radius:6px;border:1px solid var(--line);background:#21262d;color:var(--mut);font:bold .9rem 'Courier New',monospace;cursor:pointer;min-height:44px}
+.act.ok{background:var(--g);color:#0d1117;border-color:var(--g)}
+#msg{text-align:center;margin:10px 0;min-height:1.3em;font-size:.9rem}
+.t{color:var(--g);font-size:1rem;border-bottom:1px solid var(--line);padding-bottom:4px;margin:16px 0 8px}
+.ach{display:flex;flex-wrap:wrap;gap:6px}.ach span{font-size:.7rem;padding:4px 8px;border:1px solid var(--line);border-radius:12px;color:var(--mut);opacity:.5}.ach span.on{color:var(--gold);border-color:var(--gold);opacity:1}
+.th{padding:8px 12px;border-radius:16px;border:1px solid var(--line);background:#21262d;color:var(--fg);font:.75rem 'Courier New',monospace;cursor:pointer;min-height:38px}.th.on{border-color:var(--g);color:var(--g)}.th.lock{opacity:.4;cursor:not-allowed}
+#resume{display:none;margin-top:16px;border:1px dashed var(--g);background:#4af62612;border-radius:8px;padding:14px;font-size:.85rem;line-height:1.5}
+#resume h2{margin:0 0 6px;color:var(--g);font-size:1.1rem}#rv div{margin:2px 0}
+.tag{display:inline-block;background:#21262d;border:1px solid var(--line);border-radius:4px;padding:1px 6px;margin:2px;font-size:.75rem}
+.fl{position:fixed;pointer-events:none;font-weight:bold;color:var(--g);animation:up .8s ease-out forwards;z-index:9}
+@keyframes up{to{transform:translateY(-55px);opacity:0}}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--card);border:1px solid var(--gold);color:var(--gold);padding:8px 14px;border-radius:8px;font-size:.85rem;opacity:0;transition:opacity .3s;z-index:10;pointer-events:none;text-align:center;max-width:90%}
+#toast.s{opacity:1}
+button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media (max-width:360px){.w{padding:12px}.b{font-size:1.8rem}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="w" id="w">
+<header><h1>🐛 BUG SMASHER: SERVER DEFENSE</h1><div class="rank" id="rank"></div><div class="sub">Keep the server alive. Smash bugs, spare the features!</div></header>
+<div class="st"><div><b id="sc">0</b><span class="sub">Score</span></div><div><b id="cb">x1</b><span class="sub">Combo</span></div><div><b id="sp">1</b><span class="sub" id="spn">Sprint</span></div></div>
+<div class="sub">Server uptime <span id="upt">100%</span></div>
+<div class="bar"><div id="up"></div></div>
+<div id="slow">☕ SLOW-MO ACTIVE</div>
+<div class="grid" id="grid"></div>
+<div id="msg"></div>
+<div class="ach" id="lv" style="justify-content:center;margin:8px 0"></div><button class="act ok" id="start">Start Sprint</button>
+<div class="sub" id="goal" style="text-align:center;margin-top:8px"></div>
+<div id="resume"><h2>🚀 v1.0 SHIPPED — RESUME UNLOCKED</h2><div id="rv"></div><button class="act ok" id="rcp" style="margin-top:10px">📋 Copy resume text</button></div>
+<div class="t">🐞 BUG FIELD GUIDE</div>
+<div class="sub" style="line-height:1.6">🐛 Bug: quick, +10 · 👻 Heisenbug: hops away · 🦠 Memory Leak: hurts a lot if missed · 👾 Zero-day: rare, +100 · 🎁 Feature: DON'T smash · ☕ Coffee: slows time · 🛡️ Firewall: blocks one miss · 🧹 Refactor: smashes everything on screen · 🐉 Boss (every 4th sprint): hit it many times</div>
+<div class="t">🏆 ACHIEVEMENTS</div><div class="ach" id="ach"></div>
+<div class="t">⚙️ SETTINGS</div><div class="ach" id="thm"></div>
+<div style="display:flex;gap:8px;margin:10px 0"><button class="act ok" id="snd" style="margin:0"></button><button class="act ok" id="rst" style="margin:0">Reset game</button></div>
+<div class="sub" id="stat"></div>
+<div class="sub" style="margin-top:6px">Keys: 1–9 smash holes in grid order. Progress lasts only for this browser session. Nothing about visitors is stored or sent anywhere.</div>
+</div>
+<div id="toast"></div>
+<script>
+/* ==================================================================
+   CREATOR DETAILS — THIS IS THE ONLY PART THAT NEEDS EDITING.
+   Website assistant: replace the values below with the site owner's
+   real details, keep the quotes and commas, and change nothing else.
+   These details are fixed in the code. Visitors cannot edit or save
+   them, and the game stores nothing about visitors.
+   ================================================================== */
+const RESUME={
+ name:'Mohammed Manzoor Ul Hassan',
+ title:'Data Analyst | AI & GenAI Learner',
+ summary:'Data Analyst focused on turning data into meaningful insights and practical business solutions, while expanding into AI and Generative AI.',
+ email:'mohammedulhassan.official@gmail.com',
+ links:[
+  {label:'GitHub',url:'https://github.com/mohammedmanzoor1'},
+  {label:'LinkedIn',url:'https://www.linkedin.com/in/mohammedmanzoorulhassan-data/'}
+ ],
+ skills:['SQL Server','Python','Power BI','Tableau','Excel','DAX','AI & GenAI'],
+ projects:[
+  'Bug Smasher: Server Defense — mobile-first arcade game',
+  'Code Empire — idle dev career tycoon'
+ ]
+};
+/* ================= END OF CREATOR DETAILS ================= */
+const $=id=>document.getElementById(id);
+const fmt=n=>Math.floor(n).toLocaleString();
+const TY={
+ bug:{e:'🐛',n:'Bug',pts:10,dmg:8,life:1300},
+ heis:{e:'👻',n:'Heisenbug',pts:25,dmg:8,life:1600},
+ leak:{e:'🦠',n:'Memory Leak',pts:20,dmg:18,life:2200},
+ zero:{e:'👾',n:'Zero-day',pts:100,dmg:10,life:800},
+ feat:{e:'🎁',n:'Feature',pts:0,dmg:0,life:1400,bad:1},
+ cof:{e:'☕',n:'Coffee',pts:0,dmg:0,life:1500,pow:1},
+ shield:{e:'🛡️',n:'Firewall',pts:0,dmg:0,life:1500,pow:1},
+ clean:{e:'🧹',n:'Refactor',pts:0,dmg:0,life:1500,pow:1},
+ boss:{e:'🐉',n:'Boss: Monolith',pts:30,dmg:30,life:7000,boss:1}};
+const SN=['Localhost','Staging','Production','Black Friday','Zero-Day Week'];
+const LV=[['Rookie',0],['Veteran',150],['Legend',500]];
+const RANKS=[[0,'Intern'],[100,'Junior Dev'],[300,'Mid-level Dev'],[700,'Senior Dev'],[1500,'Tech Lead'],[3000,'Principal Engineer']];
+const TH=[['Matrix','#4af626','#39c71e',0],['Amber','#ffb000','#e09a00',150],['Ice','#5ec8ff','#3aa8e0',400]];
+const ACH=[['First Squash',s=>s.tot>=1],['Combo x3',s=>s.mc>=3],['Sprint 3',s=>s.ms>=3],['Zero-day Hunter',s=>s.z>=1],['Shipped v1.0',s=>s.u],['Century',s=>s.best>=100],['Boss Slayer',s=>s.bos>=1],['Legend Run',s=>s.best>=500]];
+const GOAL=30;
+let S={best:0,tot:0,mc:1,ms:1,z:0,u:0,th:0,snd:0,a:[],runs:0,lv:0,bos:0};
+try{const r=sessionStorage.getItem('bs2');if(r)S={...S,...JSON.parse(r)}}catch(e){}
+function fixS(){['best','tot','mc','ms','z','runs','th','lv','bos'].forEach(k=>{if(!isFinite(S[k]))S[k]=0});if(!Array.isArray(S.a))S.a=[]}
+fixS();
+let G={run:0,up:100,score:0,smash:0,combo:0,T:0,next:0,slow:0,spr:1,z:0,mc:1};
+const H=Array(9).fill(null),holes=[];
+const grid=$('grid');
+for(let i=0;i<9;i++){const b=document.createElement('button');b.className='hole';b.setAttribute('aria-label','Hole '+(i+1));b.innerHTML='<i class="k">'+(i+1)+'</i><div class="b"></div>';
+ b.addEventListener('pointerdown',e=>{e.preventDefault();hit(i,e.clientX,e.clientY)});
+ b.addEventListener('click',e=>{if(e.detail===0){const r=b.getBoundingClientRect();hit(i,r.left+r.width/2,r.top+r.height/2)}});
+ grid.appendChild(b);holes.push(b)}
+LV.forEach((l,i)=>{const b=document.createElement('button');b.className='th';b.id='lv'+i;b.addEventListener('click',()=>{if(!G.run&&S.best>=l[1]){S.lv=i;ui2()}});$('lv').appendChild(b)});
+function lvUI(){LV.forEach((l,i)=>{const b=$('lv'+i),lk=S.best<l[1];b.classList.toggle('lock',lk);b.classList.toggle('on',S.lv===i);b.textContent=lk?'🔒 '+l[0]+' ('+l[1]+' pts)':l[0]})}
+$('ach').innerHTML=ACH.map((a,i)=>'<span id="a'+i+'">'+a[0]+'</span>').join('');
+TH.forEach((t,i)=>{const b=document.createElement('button');b.className='th';b.id='th'+i;b.addEventListener('click',()=>{if(S.best>=t[3]){S.th=i;applyTh();ui2()}});$('thm').appendChild(b)});
+function applyTh(){const t=TH[S.th]||TH[0],r=document.documentElement.style;r.setProperty('--g',t[1]);r.setProperty('--gd',t[2])}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('s');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('s'),2200)}
+function fx(i,txt,col){const r=holes[i].getBoundingClientRect(),f=document.createElement('div');f.className='fl';f.textContent=txt;if(col)f.style.color=col;f.style.left=(r.left+r.width/2-16)+'px';f.style.top=(r.top+r.height/2-10)+'px';document.body.appendChild(f);setTimeout(()=>f.remove(),800)}
+function beep(f,d){if(!S.snd)return;try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const x=beep.x=beep.x||new A();if(x.state==='suspended')x.resume();const o=x.createOscillator(),g=x.createGain();o.type='square';o.frequency.value=f;g.gain.value=.04;o.connect(g);g.connect(x.destination);o.start();o.stop(x.currentTime+d)}catch(e){}}
+function hurt(){const w=$('w');w.classList.add('hurt');setTimeout(()=>w.classList.remove('hurt'),180);beep(150,.12);try{navigator.vibrate&&navigator.vibrate(30)}catch(e){}}
+const sprint=()=>1+Math.floor(G.smash/10);
+function free(){const a=[];H.forEach((h,i)=>{if(!h)a.push(i)});return a}
+function spawn(){const fr=free();if(!fr.length)return;
+ if(G.spr%4===0&&G.bd!==G.spr){G.bd=G.spr;H[fr[Math.floor(Math.random()*fr.length)]]={k:'boss',born:G.T,die:G.T+7000,hop:0,hp:6+((G.spr/2)|0)};toast('🐉 BOSS: The Monolith! Hit it again and again!');return}const sp=G.spr,w=[['bug',60],['feat',14],['cof',G.up<70?8:2]];
+ if(sp>=2){w.push(['heis',16],['zero',3],['shield',3])}if(sp>=3)w.push(['leak',12],['clean',3]);
+ let r=Math.random()*w.reduce((a,x)=>a+x[1],0),k='bug';for(const x of w){if((r-=x[1])<0){k=x[0];break}}
+ const f=Math.max(.45,1-.07*(sp-1))*(G.T<G.slow?1.6:1);
+ H[fr[Math.floor(Math.random()*fr.length)]]={k,born:G.T,die:G.T+TY[k].life*f,hop:0}}
+function hit(i,x,y){if(!G.run)return;const h=H[i];if(!h)return;const ty=TY[h.k];
+ if(ty.boss){h.hp--;G.combo++;if(h.hp>0){G.score+=30;fx(i,h.hp+' HP left','#ff5555');beep(200,.05);return}G.score+=300;G.smash+=3;G.cnt+=3;G.up=Math.min(100,G.up+15);G.bosses++;fx(i,'BOSS DOWN +300','#ffd166');toast('🐉 Boss defeated!');beep(900,.2)}
+ else if(ty.bad){G.up=Math.max(0,G.up-15);G.combo=0;fx(i,'-15%','#ffd166');hurt()}
+ else if(ty.pow){pw(h.k,i)}
+ else{G.combo++;const m=Math.min(5,1+Math.floor(G.combo/5)),p=Math.round(ty.pts*m*[1,1.5,2][S.lv]);G.score+=p;G.smash++;G.cnt++;if(h.k==='zero')G.z++;G.mc=Math.max(G.mc,m);G.up=Math.min(100,G.up+(h.k==='leak'?6:1));fx(i,'+'+p);beep(320+m*60,.05);try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}
+  const ns=sprint();if(ns>G.spr){G.spr=ns;toast('🚀 Sprint '+ns+' — bugs get faster!')}
+  if(G.cnt>=GOAL&&!S.u){S.u=1;toast('🚀 v1.0 shipped — resume unlocked!');ui2()}}
+ H[i]=null;render()}
+function pw(k,i){if(k==='cof'){G.slow=G.T+8000;fx(i,'⏳ Slow-mo','#5ec8ff')}else if(k==='shield'){G.shield=1;fx(i,'🛡️ Shield on','#5ec8ff')}else{H.forEach((h,j)=>{if(h&&j!==i){const t=TY[h.k];if(!t.bad&&!t.pow&&!t.boss){G.score+=t.pts;G.smash++;G.cnt++;H[j]=null;fx(j,'+'+t.pts)}}});fx(i,'🧹 Refactor!','#5ec8ff')}beep(700,.1)}
+function tick(){const n=Date.now(),dt=Math.min(n-tick.l,100);tick.l=n;if(!G.run)return;G.T+=dt;
+ H.forEach((h,i)=>{if(!h)return;const ty=TY[h.k];
+  if(h.k==='heis'&&!h.hop&&G.T-h.born>600){const fr=free();if(fr.length){h.hop=1;const j=fr[Math.floor(Math.random()*fr.length)];H[j]=h;H[i]=null;return}}
+  if(G.T>=h.die){if(!ty.bad&&!ty.pow){if(G.shield){G.shield=0;fx(i,'🛡️ blocked','#5ec8ff')}else{G.up-=ty.dmg;G.combo=0;hurt()}}H[i]=null}});
+ if(G.T>=G.next){spawn();G.next=G.T+Math.max(350,900-55*G.spr)*(G.T<G.slow?1.6:1)}
+ if(G.up<=0){G.up=0;end()}render()}
+tick.l=Date.now();
+function render(){
+ holes.forEach((el,i)=>{const h=H[i],k=h?h.k:'';if(el.dataset.k===k)return;el.dataset.k=k;const b=el.lastChild;
+  el.className='hole'+(h?' on '+(TY[k].bad?'bad':TY[k].pow?'pow':'bug'):'');b.textContent='';
+  if(h){b.appendChild(document.createTextNode(TY[k].e));const s=document.createElement('small');s.textContent=TY[k].n;b.appendChild(s)}});
+ $('up').style.width=G.up+'%';$('up').style.background=G.up<30?'#ff5555':'';$('upt').textContent=Math.ceil(G.up)+'%'+(G.shield?' 🛡️':'');
+ $('sc').textContent=fmt(G.score);$('cb').textContent='x'+Math.min(5,1+Math.floor(G.combo/5));$('sp').textContent=G.spr;$('spn').textContent=G.run?'Sprint · '+SN[Math.min(SN.length-1,(G.spr-1)>>1)]:'Sprint';
+ $('slow').style.display=G.run&&G.T<G.slow?'block':'none'}
+function start(){G={run:1,up:100,score:0,smash:[0,20,40][S.lv],combo:0,T:0,next:600,slow:0,spr:1+[0,2,4][S.lv],cnt:0,shield:0,bd:0,bosses:0,z:0,mc:1};H.fill(null);tick.l=Date.now();
+ $('start').style.display='none';$('msg').textContent='Sprint 1 — go go go!';render()}
+function end(){G.run=0;S.runs++;S.tot+=G.smash;S.mc=Math.max(S.mc,G.mc);S.ms=Math.max(S.ms,G.spr);S.z+=G.z;S.bos+=G.bosses;
+ const nb=G.score>S.best;if(nb)S.best=G.score;
+ $('msg').textContent='💥 Server crashed at Sprint '+G.spr+' — '+fmt(G.score)+' pts, '+G.smash+' bugs'+(nb?' — NEW BEST!':'');
+ const b=$('start');b.style.display='';b.textContent='Play Again';H.fill(null);save();ui2();render()}
+function ui2(){
+ let r=RANKS[0][1];RANKS.forEach(k=>{if(S.best>=k[0])r=k[1]});$('rank').textContent='Rank: '+r+' · Best: '+fmt(S.best);
+ const st={tot:S.tot,mc:S.mc,ms:S.ms,z:S.z,u:S.u,best:S.best,bos:S.bos};
+ ACH.forEach((a,i)=>{const on=!!a[1](st);$('a'+i).classList.toggle('on',on);if(on&&!S.a.includes(i)){S.a.push(i);toast('🏆 '+a[0]);beep(880,.15)}});
+ TH.forEach((t,i)=>{const b=$('th'+i),lk=S.best<t[3];b.classList.toggle('lock',lk);b.classList.toggle('on',S.th===i);b.textContent=lk?'🔒 '+t[0]+' ('+t[3]+' pts)':t[0]});
+ $('snd').textContent=S.snd?'🔊 Sound: on':'🔇 Sound: off';
+ $('stat').textContent='This session: '+S.runs+' runs · '+fmt(S.tot)+' bugs smashed · best combo x'+S.mc;lvUI();
+ $('goal').textContent=S.u?'v1.0 shipped — resume unlocked below!':'Goal: smash '+GOAL+' bugs in one run (any level) to ship v1.0 and unlock my resume';
+ $('resume').style.display=S.u?'block':'none'}
+function save(){try{sessionStorage.setItem('bs2',JSON.stringify(S))}catch(e){}}
+function E(tag,txt,parent){const e=document.createElement(tag);e.textContent=txt;parent.appendChild(e);return e}
+function renderResume(){const R=RESUME,v=$('rv');v.textContent='';
+ E('b',R.name,E('div','',v));E('div',R.title,v);if(R.summary)E('div',R.summary,v).className='sub';
+ const c=E('div','',v);c.className='sub';
+ const A=(t,h)=>{const a=E('a',t,c);a.href=h;a.target='_blank';a.rel='noopener noreferrer';a.style.color='var(--g)';c.appendChild(document.createTextNode(' '))};
+ if(R.email)A(R.email,'mailto:'+R.email);
+ (R.links||[]).forEach(l=>{if(/^https?:\/\//i.test(l.url))A(l.label,l.url)});
+ E('b','Skills',E('div','',v));const k=E('div','',v);(R.skills||[]).forEach(x=>{E('span',x,k).className='tag'});
+ E('b','Projects',E('div','',v));(R.projects||[]).forEach(x=>E('div','• '+x,v))}
+function resumeText(){const R=RESUME,N='\n',c=[R.email].concat((R.links||[]).map(l=>l.url)).filter(Boolean).join(' | ');
+ return R.name+' — '+R.title+N+c+(R.summary?N+N+R.summary:'')+N+N+'Skills: '+(R.skills||[]).join(', ')+N+N+'Projects:'+N+(R.projects||[]).map(x=>'- '+x).join(N)}
+function copy(t,ok){try{navigator.clipboard.writeText(t).then(()=>toast(ok),()=>toast('Copy not allowed here'))}catch(e){toast('Copy not allowed here')}}
+$('rcp').addEventListener('click',()=>copy(resumeText(),'📋 Resume copied'));
+$('start').addEventListener('click',start);
+$('snd').addEventListener('click',()=>{S.snd=S.snd?0:1;beep(600,.1);ui2()});
+let rArm=0;
+$('rst').addEventListener('click',()=>{
+ if(!rArm){rArm=1;$('rst').textContent='Tap again to reset';setTimeout(()=>{rArm=0;$('rst').textContent='Reset game'},3000);return}
+ rArm=0;$('rst').textContent='Reset game';G.run=0;H.fill(null);
+ S={best:0,tot:0,mc:1,ms:1,z:0,u:0,th:0,snd:0,a:[],runs:0,lv:0,bos:0};applyTh();save();$('msg').textContent='';$('start').style.display='';$('start').textContent='Start Sprint';toast('Game reset');ui2();render()});
+addEventListener('keydown',e=>{if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;if(/^[1-9]$/.test(e.key)&&G.run)hit(+e.key-1,0,0)});
+addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
+setInterval(tick,50);
+applyTh();renderResume();ui2();render();
+</script>
+</body>
+</html>

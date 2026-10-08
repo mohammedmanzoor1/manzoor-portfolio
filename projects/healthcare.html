@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080b12" id="themeColorMeta">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="Analyze 30-day hospital readmission patterns among diabetic patients to identify risk factors and support better discharge planning.">
+  <title>Healthcare Re-Admission Analysis | Mohammed Manzoor Ul Hassan</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body class="case-page">
+  <div class="noise" aria-hidden="true"></div>
+  <div class="progress" aria-hidden="true"><span style="width:100%"></span></div>
+  <header class="nav is-scrolled">
+    <a class="brand" href="../index.html">MMUH</a>
+    <nav class="nav-links case-nav-links" aria-label="Project navigation">
+        <a href="../index.html#projects">Projects</a>
+        <a href="../index.html#about">About</a>
+        <a href="../index.html#contact">Contact</a>
+    </nav>
+    <div class="theme-control case-theme-control">
+      <button class="theme-trigger" id="themeTrigger" type="button" aria-expanded="false" aria-controls="themeMenu" aria-haspopup="true">
+        <span class="theme-trigger-icon" aria-hidden="true">◐</span><span>Theme</span>
+      </button>
+      <div class="theme-menu" id="themeMenu" role="menu" aria-label="Choose website theme" hidden>
+        <p class="theme-menu-title">Choose atmosphere</p>
+        <button type="button" class="theme-option is-selected" data-theme-choice="midnight" role="menuitemradio" aria-checked="true"><span class="theme-swatch midnight"></span><span><b>Midnight Data</b><small>Default · cinematic</small></span></button>
+        <button type="button" class="theme-option" data-theme-choice="aurora" role="menuitemradio" aria-checked="false"><span class="theme-swatch aurora"></span><span><b>Aurora AI</b><small>Bright blue · cyan · violet</small></span></button>
+        <button type="button" class="theme-option" data-theme-choice="emerald" role="menuitemradio" aria-checked="false"><span class="theme-swatch emerald"></span><span><b>Emerald Analytics</b><small>Fresh green · teal</small></span></button>
+        <button type="button" class="theme-option" data-theme-choice="cosmic" role="menuitemradio" aria-checked="false"><span class="theme-swatch cosmic"></span><span><b>Cosmic Violet</b><small>Luminous violet · blue</small></span></button>
+        <button type="button" class="theme-option" data-theme-choice="light" role="menuitemradio" aria-checked="false"><span class="theme-swatch light"></span><span><b>Light Mode</b><small>Blue sky · white clouds</small></span></button>
+      </div>
+    </div>
+  </header>
+  <main class="case-main">
+
+    <section class="case-hero">
+      <div>
+        <p class="case-kicker">PREDICTIVE / DIAGNOSTIC ANALYTICS</p>
+        <h1>Healthcare Re-Admission Analysis</h1>
+        <p class="case-lede">Analyze 30-day hospital readmission patterns among diabetic patients to identify risk factors and support better discharge planning.</p>
+        <div class="case-hero-actions">
+          <a class="btn primary" href="https://mohammedmanzoor1.github.io/healthcare-re-admission-analysis/" target="_blank" rel="noopener noreferrer">Open Dashboard ↗</a>
+          <a class="btn ghost" href="https://github.com/mohammedmanzoor1/healthcare-re-admission-analysis" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+        </div>
+        <p class="case-signature">MMUH · DATA ANALYST</p>
+        <a class="case-back-link" href="../index.html#projects">← Back to all projects</a>
+      </div>
+      <aside class="case-meta-card">
+        <img src="../assets/project-01-healthcare.png" alt="Healthcare Re-Admission Analysis dashboard screenshot" loading="eager">
+        <p class="case-meta-label">Tools</p>
+        <div class="case-tools"><span>Python</span><span>Pandas</span><span>NumPy</span><span>SQL Server</span><span>Tableau</span></div>
+        <p class="case-meta-label">Dataset / source</p>
+        <p>100,000+ diabetic patient encounters across multiple US hospitals over 10 years, covering demographics, admission information, hospital utilization, diagnoses, medications, and readmission status.</p>
+      </aside>
+    </section>
+    <section class="case-section">
+      <div class="case-grid">
+        <article class="case-panel">
+          <p class="case-kicker">Business problem / purpose</p>
+          <h2>Why this analysis?</h2>
+          <p>Analyze 30-day hospital readmission patterns among diabetic patients to identify risk factors and support better discharge planning and reduced avoidable readmissions.</p>
+        </article>
+        <article class="case-panel">
+          <p class="case-kicker">What I did</p>
+          <h2>From raw data to dashboard.</h2>
+          <ol class="case-list"><li>Cleaned the data by replacing “?” with nulls, dropping high-missing columns and identifiers, handling duplicates, and standardizing types.</li><li>Engineered a 30-Day Readmission Flag, Total Prior Visits, Long Stay Flag, Polypharmacy Flag, and High Utilizer Flag.</li><li>Answered 8 business questions in SQL covering outcomes, age, length of stay, prior visits, admission type, discharge disposition, medications, and diagnosis count.</li><li>Built a single-page Tableau dashboard with KPI cards and four core visualizations, filterable by race, gender, project and age.</li></ol>
+        </article>
+        <article class="case-panel wide">
+          <p class="case-kicker">Key analysis / KPIs</p>
+          <h2>The measures that mattered.</h2>
+          <div class="case-kpis"><div class="case-kpi"><strong>101,763</strong><span>Total Patients</span></div><div class="case-kpi"><strong>11,357</strong><span>30-Day Readmissions</span></div><div class="case-kpi"><strong>11.16%</strong><span>Readmission Rate</span></div><div class="case-kpi"><strong>4.4 days</strong><span>Avg Length of Stay</span></div></div>
+        </article>
+        <article class="case-panel wide">
+          <p class="case-kicker">Key insights</p>
+          <h2>What the analysis showed.</h2>
+          <ul class="case-list"><li>Longer hospital stays and higher prior healthcare utilization are both associated with increased readmission risk.</li><li>Readmission rate rises fairly steadily with the number of diagnoses—from 5.94% at 1 diagnosis to 17.65% at 10.</li><li>Certain admission and discharge categories show much higher readmission rates than others; for example, disposition 3 is 14.66% versus disposition 1 at 9.3% on large patient counts.</li></ul>
+        </article>
+      </div>
+    </section>
+  </main>
+  <script src="../case-theme.js"></script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080b12" id="themeColorMeta">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="Inspect, clean, and analyze retail order data, then build an interactive dashboard to track sales, profit, customer performance, monthly trends, category performance, and discount impact.">
+  <title>Retail Sales &amp; Profit Performance | Mohammed Manzoor Ul Hassan</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body class="case-page">
+  <div class="noise" aria-hidden="true"></div>
+  <div class="progress" aria-hidden="true"><span style="width:100%"></span></div>
+  <header class="nav is-scrolled">
+    <a class="brand" href="../index.html">MMUH</a>
+    <nav class="nav-links case-nav-links" aria-label="Project navigation">
+        <a href="../index.html#projects">Projects</a>
+        <a href="../index.html#about">About</a>
+        <a href="../index.html#contact">Contact</a>
+    </nav>
+    <div class="theme-control case-theme-control">
+      <button class="theme-trigger" id="themeTrigger" type="button" aria-expanded="false" aria-controls="themeMenu" aria-haspopup="true">
+        <span class="theme-trigger-icon" aria-hidden="true">◐</span><span>Theme</span>
+      </button>
+      <div class="theme-menu" id="themeMenu" role="menu" aria-label="Choose website theme" hidden>
+        <p class="theme-menu-title">Choose atmosphere</p>
+        <button type="button" class="theme-option is-selected" data-theme-choice="midnight" role="menuitemradio" aria-checked="true"><span class="theme-swatch midnight"></span><span><b>Midnight Data</b><small>Default · cinematic</small></span></button>
+        <button type="button" class="theme-option" data-theme-choice="aurora" role="menuitemradio" aria-checked="false"><span class="theme-swatch aurora"></span><span><b>Aurora AI</b><small>Bright blue · cyan · violet</small></span></button>
+        <button type="button" class="theme-option" data-theme-choice="emerald" role="menuitemradio" aria-checked="false"><span class="theme-swatch emerald"></span><span><b>Emerald Analytics</b><small>Fresh green · teal</small></span></button>
+        <button type="button" class="theme-option" data-theme-choice="cosmic" role="menuitemradio" aria-checked="false"><span class="theme-swatch cosmic"></span><span><b>Cosmic Violet</b><small>Luminous violet · blue</small></span></button>
+        <button type="button" class="theme-option" data-theme-choice="light" role="menuitemradio" aria-checked="false"><span class="theme-swatch light"></span><span><b>Light Mode</b><small>Blue sky · white clouds</small></span></button>
+      </div>
+    </div>
+  </header>
+  <main class="case-main">
+
+    <section class="case-hero">
+      <div>
+        <p class="case-kicker">DATA CLEANING + BUSINESS INTELLIGENCE</p>
+        <h1>Retail Sales &amp; Profit Performance</h1>
+        <p class="case-lede">Inspect, clean, and analyze retail order data, then build an interactive dashboard to track sales, profit, customer performance, monthly trends, category performance, and discount impact.</p>
+        <div class="case-hero-actions">
+          <a class="btn primary" href="https://mohammedmanzoor1.github.io/superstore-sales-analytics/" target="_blank" rel="noopener noreferrer">Open Dashboard ↗</a>
+          <a class="btn ghost" href="https://github.com/mohammedmanzoor1/superstore-sales-analytics" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+        </div>
+        <p class="case-signature">MMUH · DATA ANALYST</p>
+        <a class="case-back-link" href="../index.html#projects">← Back to all projects</a>
+      </div>
+      <aside class="case-meta-card">
+        <img src="../assets/project-05-retail-profit.png" alt="Retail Sales &amp; Profit Performance dashboard screenshot" loading="eager">
+        <p class="case-meta-label">Tools</p>
+        <div class="case-tools"><span>SQL Server</span><span>Tableau</span></div>
+        <p class="case-meta-label">Dataset / source</p>
+        <p>Superstore_sql table with 11 fields including Order_ID, Order_Date, Customer_Name, Segment, Region, Category, Product_Name, Sales, Quantity, Discount, and Profit.</p>
+      </aside>
+    </section>
+    <section class="case-section">
+      <div class="case-grid">
+        <article class="case-panel">
+          <p class="case-kicker">Business problem / purpose</p>
+          <h2>Why this analysis?</h2>
+          <p>Inspect, clean, and analyze retail order data, then build an interactive dashboard to track sales, profit, customer performance, monthly trends, category performance, and discount impact.</p>
+        </article>
+        <article class="case-panel">
+          <p class="case-kicker">What I did</p>
+          <h2>From raw data to dashboard.</h2>
+          <ol class="case-list"><li>Retrieved and inspected the Superstore_sql table and its column/data types via INFORMATION_SCHEMA.</li><li>Checked for null values in key fields and updated missing Profit to 0 and Customer_Name to Unknown.</li><li>Checked for duplicate Order_IDs using GROUP BY / HAVING, then ran aggregate and window-based analysis.</li><li>Built a Tableau dashboard with KPI cards, a customer treemap, a monthly trend line, category comparison, and a discount-impact chart, with Category, Segment, Region, and Quarter filters.</li></ol>
+        </article>
+        <article class="case-panel wide">
+          <p class="case-kicker">Key analysis / KPIs</p>
+          <h2>The measures that mattered.</h2>
+          <div class="case-kpis"><div class="case-kpi"><strong>160,828</strong><span>Total Sales</span></div><div class="case-kpi"><strong>41,379</strong><span>Total Profit</span></div><div class="case-kpi"><strong>23</strong><span>Total Customers</span></div><div class="case-kpi"><strong>100</strong><span>Total Orders</span></div><div class="case-kpi"><strong>1,608</strong><span>Avg Order Value</span></div></div>
+        </article>
+        <article class="case-panel wide">
+          <p class="case-kicker">Key insights</p>
+          <h2>What the analysis showed.</h2>
+          <ul class="case-list"><li>Deepak Mishra is the top customer at 17,256 in sales.</li><li>Monthly sales swing noticeably, from a low of 7,312 to a high of 19,438.</li><li>Higher discount groups show lower profit despite similar or higher sales, showing discounting erodes margin.</li></ul>
+        </article>
+      </div>
+    </section>
+  </main>
+  <script src="../case-theme.js"></script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark"><meta name="theme-color" content="#0d1117">
+<title>Agent Crew: Human-in-the-Loop Demo</title>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--line:#30363d;--fg:#e6edf3;--mut:#8b949e;--g:#4af626;--gold:#ffd166;--blue:#5ec8ff;--pink:#ff7eb6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}html,body{margin:0}
+body{font-family:'Courier New',monospace;background:var(--bg);color:var(--fg);padding:14px;display:flex;justify-content:center}
+button,input,textarea{font-family:inherit;touch-action:manipulation}
+.w{width:100%;max-width:860px}
+header{text-align:center;margin-bottom:12px}h1{color:var(--g);margin:0;font-size:1.4rem}.sub{color:var(--mut);font-size:.78rem;line-height:1.5}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+#cvw{position:relative;border-radius:10px;overflow:hidden;background:radial-gradient(ellipse at center,#16202b,#0d1117)}
+#cv{display:block;width:100%;height:clamp(250px,44vh,360px)}
+.chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:10px}
+.chip{border:1px solid var(--line);border-left:4px solid var(--c);border-radius:8px;padding:8px;font-size:.78rem;background:#0d1117}
+.chip b{color:var(--c);display:block}.chip.work{box-shadow:0 0 10px var(--c)}.chip.wait{border-style:dashed;box-shadow:0 0 10px var(--gold)}.chip.done{opacity:.75}
+label.dz{display:block;border:2px dashed var(--line);border-radius:10px;padding:14px;text-align:center;cursor:pointer;color:var(--mut);font-size:.85rem}
+label.dz.over{border-color:var(--g);color:var(--g)}
+input[type=file]{display:none}
+textarea{width:100%;background:#0d1117;color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:16px;margin:8px 0;resize:vertical}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{flex:1 1 140px;min-height:44px;padding:10px 14px;border-radius:8px;border:1px solid var(--line);background:#21262d;color:var(--fg);font-weight:bold;font-size:.85rem;cursor:pointer}
+.btn.p{background:var(--g);color:#0d1117;border-color:var(--g)}.btn.g{background:var(--gold);color:#0d1117;border-color:var(--gold)}.btn:disabled{opacity:.45;cursor:not-allowed}
+#gate{display:none;border:2px solid var(--gold);background:#ffd16610}#gate h3{margin:0 0 6px;color:var(--gold);font-size:1rem}
+pre{white-space:pre-wrap;word-break:break-word;margin:6px 0 0;font-size:.78rem;line-height:1.45;max-height:260px;overflow:auto;background:#0d1117;border:1px solid var(--line);border-radius:8px;padding:8px}
+details{margin-bottom:8px}summary{cursor:pointer;color:var(--g);font-weight:bold;font-size:.9rem;min-height:32px}
+#log{max-height:170px;overflow:auto;font-size:.76rem;line-height:1.6}#log div{border-bottom:1px solid #21262d}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--card);border:1px solid var(--gold);color:var(--gold);padding:8px 14px;border-radius:8px;font-size:.85rem;opacity:0;transition:opacity .3s;z-index:10;pointer-events:none;max-width:90%;text-align:center}#toast.s{opacity:1}
+h2{font-size:1rem;color:var(--g);margin:0 0 8px}
+button:focus-visible,label.dz:focus-within{outline:2px solid var(--gold);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:10px}
+.sc{border:1px solid var(--line);border-top:4px solid var(--c);border-radius:10px;padding:10px;background:#0d1117}.sc.mvp{box-shadow:0 0 14px var(--gold);border-color:var(--gold);border-top-color:var(--c)}
+.sh{display:flex;justify-content:space-between;align-items:center;color:var(--c);font-size:.9rem}.sh span{font-size:.7rem;background:#21262d;border:1px solid var(--line);border-radius:10px;padding:1px 7px;color:var(--fg)}
+.ss{color:var(--gold);font-size:.85rem;margin:4px 0 6px}
+.mt{display:flex;align-items:center;gap:6px;font-size:.7rem;margin:3px 0}.mt span{width:52px;color:var(--mut)}.mt i{flex:1;height:7px;background:#161b22;border:1px solid var(--line);border-radius:4px;overflow:hidden}.mt i b{display:block;height:100%;width:0;background:var(--c);transition:width .8s}.mt em{width:26px;text-align:right;font-style:normal}
+.bd{display:inline-block;font-size:.66rem;border:1px solid var(--gold);color:var(--gold);border-radius:10px;padding:1px 6px;margin:4px 4px 0 0}
+</style>
+</head>
+<body>
+<div class="w">
+<header><h1>🤖 AGENT CREW</h1><div class="sub">An Interpreter works out what you really want, an Orchestrator splits the job across a Researcher, a Coder and a QA Reviewer — and they check with <b>you</b> before moving on.<br>Simulation: rule-based agents, no AI calls. Your file is read in your browser and never uploaded.</div></header>
+<div class="card"><div id="cvw"><canvas id="cv" aria-label="3D view of four agents"></canvas></div><div class="chips" id="chips"></div></div>
+<div class="card">
+<h2>1 · Give the crew a job</h2>
+<label class="dz" id="dz" for="fi">📎 Tap to choose a file, or drop one here<br><span id="fn">No file yet (text, code, CSV, JSON, Markdown · up to 50 MB)</span></label>
+<input type="file" id="fi" accept=".txt,.md,.js,.jsx,.ts,.tsx,.py,.json,.csv,.tsv,.html,.css,.java,.go,.rs,.c,.cpp,.php,.rb">
+<textarea id="pr" rows="2" maxlength="300" placeholder="Prompt, e.g. Review this file and suggest improvements"></textarea>
+<div class="row"><button class="btn" id="smp">Use sample file</button><button class="btn p" id="go">▶ Run the crew</button><button class="btn" id="rs">Reset</button></div>
+<label class="sub" style="display:block;margin-top:10px"><input type="checkbox" id="cf" checked> 🙋 Ask me to confirm the Interpreter’s brief</label>
+</div>
+<div class="card" id="gate"><h3 id="gt"></h3><pre id="gb"></pre><div class="row" id="gbt" style="margin-top:10px"></div></div>
+<div class="card"><h2>2 · Live activity</h2><div id="log" aria-live="polite"></div></div>
+<div class="card"><h2>3 · Crew scorecard</h2><div class="sub" id="scs"></div><div class="sg" id="scg"></div></div>
+<div class="card"><h2>4 · Agent outputs</h2>
+<details open><summary style="color:var(--gold)">🧭 Orchestrator — final report</summary><div class="row" style="margin:6px 0"><button class="btn p" id="m1">🔧 Technical</button><button class="btn" id="m2">🗣️ Plain English</button></div><pre id="o_orch">Waiting…</pre><div class="row" style="margin-top:8px"><button class="btn" id="cp" disabled>📋 Copy shown report</button></div></details>
+<details><summary style="color:#b388ff">🧩 Interpreter — brief</summary><pre id="o_int">Waiting…</pre></details>
+<details><summary style="color:var(--blue)">🔎 Researcher</summary><pre id="o_res">Waiting…</pre></details>
+<details><summary>💻 Coder</summary><pre id="o_cod">Waiting…</pre></details>
+<details><summary style="color:var(--pink)">✅ QA Reviewer</summary><pre id="o_qa">Waiting…</pre></details>
+</div>
+<div class="sub" style="text-align:center;padding-bottom:10px">Built with vanilla JavaScript + three.js. Files are processed locally and discarded when you close the tab.</div>
+</div>
+<div id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const RM=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
+const sleep=ms=>new Promise(r=>setTimeout(r,RM?ms/3:ms));
+const AG={int:{n:'Interpreter',c:0xb388ff,css:'#b388ff'},orch:{n:'Orchestrator',c:0xffd166,css:'#ffd166'},res:{n:'Researcher',c:0x5ec8ff,css:'#5ec8ff'},cod:{n:'Coder',c:0x4af626,css:'#4af626'},qa:{n:'QA Reviewer',c:0xff7eb6,css:'#ff7eb6'}};
+const SAMPLE={name:'sample.js',text:"// Tiny shopping cart helper\nfunction addItem(cart, item) {\n  // TODO: validate item\n  cart.push(item);\n  return cart;\n}\n\nconst total = (cart) => cart.reduce((s, i) => s + i.price * i.qty, 0);\n\nfunction applyDiscount(amount, pct) {\n  // FIXME: pct can be negative\n  return amount - amount * (pct / 100);\n}\n\nasync function checkout(cart) {\n  const t = total(cart);\n  return { total: t, items: cart.length };\n}\n"};
+const STOP=new Set('this that with from have will your file the and for are not but you can into over been their there what when which would about these those than then them also each some more such only just like make does'.split(' '));
+let F=null,RUN=0,GT=null,HD=[],REPORT='',PLAIN='',PM=false;
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('s');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('s'),2400)}
+/* ---------- chips ---------- */
+const chips={};
+Object.keys(AG).forEach(k=>{const d=document.createElement('div');d.className='chip';d.style.setProperty('--c',AG[k].css);d.innerHTML='<b></b><span></span>';d.firstChild.textContent=AG[k].n;d.lastChild.textContent='Idle';$('chips').appendChild(d);chips[k]=d});
+function setSt(k,st,txt){chips[k].className='chip '+st;chips[k].lastChild.textContent=txt;if(A3[k])A3[k].state=st}
+/* ---------- 3D ---------- */
+let R3=null,cam,scene;const A3={},PK=[];
+function mkAgent(k,geo,f,pos){const g=new THREE.Group(),c=AG[k].c;
+ const body=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:.2,roughness:.45,metalness:.15}));g.add(body);
+ const W=new THREE.MeshBasicMaterial({color:0xffffff}),B=new THREE.MeshBasicMaterial({color:0x111111}),eyes=[],pup=[];
+ [-1,1].forEach(sd=>{const e=new THREE.Mesh(new THREE.SphereGeometry(f.er,16,16),W);e.position.set(sd*f.ex,f.ey,f.fz);const pp=new THREE.Mesh(new THREE.SphereGeometry(f.er*.5,12,12),B);pp.position.set(0,0,f.er*.75);e.add(pp);g.add(e);eyes.push(e);pup.push(pp)});
+ const M={smile:new THREE.Mesh(new THREE.TorusGeometry(f.er*1.1,.035,8,20,Math.PI),B),flat:new THREE.Mesh(new THREE.BoxGeometry(f.er*1.8,.05,.05),B),open:new THREE.Mesh(new THREE.SphereGeometry(f.er*.6,12,12),B)};
+ M.smile.rotation.z=Math.PI;for(const m in M){M[m].position.set(0,f.my,f.fz);M[m].visible=false;g.add(M[m])}M.smile.position.y=f.my+f.er;
+ const D=new THREE.MeshBasicMaterial({color:0x222222}),O=new THREE.MeshBasicMaterial({color:0xff9f1c});
+ if(k==='orch'){const cr=new THREE.Mesh(new THREE.ConeGeometry(.3,.45,5),O);cr.position.set(0,f.R+.1,0);g.add(cr)}
+ if(k==='res'){[-1,1].forEach(sd=>{const r=new THREE.Mesh(new THREE.TorusGeometry(f.er*1.35,.03,8,20),D);r.position.set(sd*f.ex,f.ey,f.fz+.06);g.add(r)});const br=new THREE.Mesh(new THREE.BoxGeometry(f.ex,.03,.03),D);br.position.set(0,f.ey,f.fz+.06);g.add(br)}
+ if(k==='cod'){const hb=new THREE.Mesh(new THREE.TorusGeometry(f.R*1.25,.06,8,24,Math.PI),D);g.add(hb);[-1,1].forEach(sd=>{const ec=new THREE.Mesh(new THREE.SphereGeometry(.17,12,12),D);ec.position.set(sd*f.R*1.25,0,0);g.add(ec)})}
+ if(k==='int'){const st=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,.3,6),D);st.position.set(0,.75,0);g.add(st);const bu=new THREE.Mesh(new THREE.SphereGeometry(.15,14,14),new THREE.MeshBasicMaterial({color:0xfff27a}));bu.position.set(0,.98,0);g.add(bu)}
+ if(k==='qa'){const mo=new THREE.Mesh(new THREE.TorusGeometry(f.er*1.6,.035,8,20),D);mo.position.set(f.ex,f.ey,f.fz+.06);g.add(mo)}
+ g.position.set(...pos);scene.add(g);A3[k]={g,body,y:pos[1],p:AGI[k],state:'idle',eyes,pup,M,mk:'',er:f.er}}
+const AGI={int:6.8,orch:0,res:1.7,cod:3.4,qa:5.1};
+function init3D(){try{if(!window.THREE)return;const c=$('cv');
+ R3=new THREE.WebGLRenderer({canvas:c,antialias:true,alpha:true});R3.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+ scene=new THREE.Scene();cam=new THREE.PerspectiveCamera(50,1,.1,100);
+ scene.add(new THREE.AmbientLight(0xffffff,.65));const pl=new THREE.PointLight(0xffffff,1,50);pl.position.set(3,7,8);scene.add(pl);
+ const gr=new THREE.GridHelper(18,18,0x30363d,0x21262d);gr.position.y=-1;scene.add(gr);
+ mkAgent('orch',new THREE.IcosahedronGeometry(.95,0),{R:.95,fz:.86,ex:.3,ey:.15,er:.15,my:-.3},[0,1,-1.6]);
+ mkAgent('res',new THREE.SphereGeometry(.75,28,28),{R:.75,fz:.62,ex:.25,ey:.12,er:.13,my:-.22},[-4,0,.4]);
+ mkAgent('cod',new THREE.BoxGeometry(1.2,1.2,1.2),{R:.6,fz:.61,ex:.28,ey:.12,er:.14,my:-.25},[4,0,.4]);
+ mkAgent('qa',new THREE.DodecahedronGeometry(.85,0),{R:.85,fz:.68,ex:.28,ey:.14,er:.14,my:-.26},[0,0,3.2]);
+ mkAgent('int',new THREE.CylinderGeometry(.65,.65,1.2,20),{R:.65,fz:.66,ex:.24,ey:.15,er:.13,my:-.25},[-3.4,.4,-3.6]);
+ ['orch','res','cod','qa'].forEach(k=>{const l=new THREE.Line(new THREE.BufferGeometry().setFromPoints([A3.int.g.position.clone(),A3[k].g.position.clone()]),new THREE.LineBasicMaterial({color:0x4b3f72}));scene.add(l)});
+ ['res','cod','qa'].forEach(k=>{const l=new THREE.Line(new THREE.BufferGeometry().setFromPoints([A3.orch.g.position.clone(),A3[k].g.position.clone()]),new THREE.LineBasicMaterial({color:0x3d4650}));scene.add(l)});
+ c.addEventListener('webglcontextlost',e=>{e.preventDefault();R3=null;c.style.display='none'});
+ rs3();addEventListener('resize',rs3);requestAnimationFrame(loop)}catch(e){R3=null}}
+function rs3(){if(!R3)return;const c=$('cv'),w=c.clientWidth||300,h=c.clientHeight||240,a=w/h;R3.setSize(w,h,false);cam.aspect=a;const dz=Math.max(11,6/(0.466*a));cam.position.set(0,dz*.42,dz);cam.lookAt(0,.3,.6);cam.updateProjectionMatrix()}
+let lt=0;
+function loop(t){requestAnimationFrame(loop);if(!R3||document.hidden){lt=t;return}const dt=Math.min(t-lt,50);lt=t;const s=t/1000;
+ for(const k in A3){const o=A3[k],g=o.g,st=o.state,mat=o.body.material;
+  g.position.y=o.y+(RM?0:(o.party&&performance.now()<o.party?Math.abs(Math.sin(s*8))*.6:Math.sin(s*1.5+o.p)*.12));g.lookAt(cam.position.x,g.position.y,cam.position.z);
+  o.body.rotation.z=RM?0:Math.sin(s*1.2+o.p)*.05;
+  const tg=(st==='work'?1:st==='wait'?.8:st==='done'?.45:.2)+(st==='work'||st==='wait'?Math.sin(s*6)*.2:0);
+  mat.emissiveIntensity+=(tg-mat.emissiveIntensity)*.15;const sc=st==='wait'?1.15:1;g.scale.lerp(new THREE.Vector3(sc,sc,sc),.1);
+  mat.color.setHex(st==='wait'?0xffd166:AG[k].c);
+  const mk=st==='work'?(Math.sin(s*12)>0?'open':'flat'):st==='wait'?'flat':'smile';
+  if(mk!==o.mk){if(o.mk)o.M[o.mk].visible=false;o.M[mk].visible=true;o.mk=mk}
+  const bl=((s+o.p)%3.2)<.12?.1:1;o.eyes.forEach(e=>{e.scale.y=bl});
+  const px=st==='work'?Math.sin(s*3+o.p)*o.er*.35:0,py=st==='wait'?o.er*.4:0;o.pup.forEach(pp=>{pp.position.x=px;pp.position.y=py})}
+ for(let i=PK.length-1;i>=0;i--){const p=PK[i];p.t+=dt/p.d;if(p.t>=1){scene.remove(p.m);PK.splice(i,1);p.res()}else p.m.position.lerpVectors(p.a,p.b,p.t)}
+ R3.render(scene,cam)}
+function send(a,b,col){if(!R3)return sleep(500);return new Promise(res=>{const m=new THREE.Mesh(new THREE.SphereGeometry(.2,12,12),new THREE.MeshBasicMaterial({color:col}));scene.add(m);PK.push({m,a:A3[a].g.position.clone(),b:A3[b].g.position.clone(),t:0,d:RM?250:750,res})})}
+/* ---------- analysis (real, local, rule-based) ---------- */
+function analyze(name,text){const lines=text.split(/\r?\n/),ext=(name.split('.').pop()||'').toLowerCase();
+ const kind=['js','jsx','ts','tsx','py','java','go','rs','c','cpp','php','rb','html','css'].includes(ext)?'code':['csv','tsv'].includes(ext)?'data':ext==='json'?'json':'text';
+ const freq={};(text.toLowerCase().match(/[a-z]{4,}/g)||[]).forEach(w=>{if(!STOP.has(w))freq[w]=(freq[w]||0)+1});
+ const top=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,6);
+ const funcs=[];const re=/(?:function\s+([A-Za-z_$][\w$]*)|(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s*)?(?:\([^)]*\)|[A-Za-z_$][\w$]*)\s*=>|def\s+([A-Za-z_]\w*))/g;let m;while((m=re.exec(text))&&funcs.length<30)funcs.push(m[1]||m[2]||m[3]);
+ const cols=kind==='data'?profile(text,ext==='tsv'):null;return{cols,miss:cols?cols.reduce((a,c)=>a+c.miss,0):0,name,ext,kind,lines:lines.length,words:(text.match(/\S+/g)||[]).length,chars:text.length,top,funcs,heads:lines.filter(l=>/^#{1,3}\s+\S/.test(l)).map(l=>l.replace(/^#+\s+/,'')).slice(0,8),
+  todos:lines.filter(l=>/TODO|FIXME|HACK/.test(l)).length,long:lines.filter(l=>l.length>120).length,dups:(()=>{const m=lines.filter(l=>l.trim().length>8);return m.length-new Set(m).size})()}}
+const terms=p=>[...new Set((p.toLowerCase().match(/[a-z]{4,}/g)||[]).filter(w=>!STOP.has(w)))].slice(0,8);
+const KW={review:['review','check','audit','analyze','analyse','inspect'],name:['name','title','rename','label'],summary:['summary','summarize','summarise','explain','describe','overview'],tests:['test','tests','testing'],improve:['improve','fix','clean','refactor','optimize']};
+function lev(a,b){const d=[];for(let i=0;i<=a.length;i++)d[i]=[i];for(let j=1;j<=b.length;j++)d[0][j]=j;for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[a.length][b.length]}
+function intents(p){const ws=p.toLowerCase().match(/[a-z]+/g)||[],list=[],fix=[];
+ for(const k in KW){for(const w of ws){const h=KW[k].includes(w)?w:KW[k].find(x=>w.length>=4&&x.length>=4&&lev(w,x)<=(x.length>=6?2:1));if(h){if(!list.includes(k))list.push(k);if(h!==w&&h+'s'!==w&&w+'s'!==h)fix.push(w+'→'+h);break}}}
+ const fb=!list.length;if(fb)list.push('review');return{list,fix,fb}}
+const DOM=[[/tip|bill|restaurant|meal|dinner|lunch/,'restaurant-tips'],[/cart|checkout|basket/,'shopping-cart'],[/price|sale|revenue|order|customer|invoice/,'sales-orders'],[/temp|weather|rain|humid|wind/,'weather-readings'],[/salary|income|employee/,'employee-records'],[/score|grade|student|exam|marks/,'student-scores'],[/lat|lon|city|country|address/,'locations']];
+const slug=x=>x.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const tcase=x=>x.split('-').filter(Boolean).map(w=>w[0].toUpperCase()+w.slice(1)).join(' ');
+const DEL={review:'findings and a profile of the file',name:'N name suggestions and a rename command',summary:'a plain overview of the contents',tests:'test skeletons',improve:'issues found and suggested fixes'};
+function makeBrief(I,f){I.goal='The user wants to '+I.list.join(' + ')+' "'+f.name+'"';
+ I.brief='Goal: '+I.goal+'\nDeliverables: '+I.list.map(k=>DEL[k].replace('N',I.N)).join('; ')+'\nConstraints: '+(I.list.includes('name')?I.N+' names'+(I.case?', '+I.case+' case first':''):'none')+(I.style?', '+I.style+' style':'')+'\nConfidence: '+I.conf+'%'+(I.edited?' (confirmed by you)':'')+'\nTypos fixed: '+(I.fix.join(', ')||'none')+'\nShared with: Orchestrator, Researcher, Coder, QA Reviewer';return I}
+function interpret(p,f){const b=intents(p),ws=p.toLowerCase().match(/[a-z]+/g)||[],m=p.match(/\b(\d{1,2})\s+(?:[a-z]+\s+){0,2}(?:names?|options?|ideas?|suggestions?|titles?)/i);
+ const I={list:b.list,fix:b.fix,N:m?clamp(+m[1],1,10):5,case:/snake/i.test(p)?'snake':/camel/i.test(p)?'camel':/title case|readable/i.test(p)?'title':'',style:/short|brief|concise/i.test(p)?'short':/detailed|thorough/i.test(p)?'detailed':'',edited:false};
+ I.conf=clamp(35+(b.fb?0:30)+(ws.length>=4?15:0)+(/file|this|it|data|code|text/.test(p.toLowerCase())?10:0)-(b.fix.length?5:0)+(m||I.case||I.style?5:0),10,99);return makeBrief(I,f)}
+function applyChoice(I,c,f){const L={'Only suggest names':['name'],'Only review':['review'],'Only summarize':['summary']}[c];return L?makeBrief({...I,list:L,conf:100,edited:true},f):I}
+function profile(text,tab){const d=tab?'\t':',',rows=text.split(/\r?\n/).filter(Boolean).slice(0,5001).map(r=>r.split(d)),head=(rows.shift()||[]).map(x=>x.trim());
+ return head.slice(0,12).map((name,i)=>{const v=rows.map(r=>(r[i]||'').trim()),f=v.filter(x=>x!==''),nums=f.filter(x=>isFinite(x)),o={name,miss:v.length-f.length};
+  if(f.length&&nums.length/f.length>.9){const a=nums.map(Number);o.type='number';o.min=Math.min(...a);o.max=Math.max(...a)}else{const c={};f.forEach(x=>c[x]=(c[x]||0)+1);const u=Object.keys(c).sort((x,y)=>c[y]-c[x]);o.type='text';o.uniq=u.length;o.top=u.slice(0,3)}return o})}
+function suggestNames(A,text,rev){const cols=(A.cols||[]).map(c=>slug(c.name)),tw=A.top.map(x=>x[0]).filter(w=>!/^\d/.test(w)).slice(0,2),hay=(cols.join(' ')+' '+A.funcs.join(' ')+' '+A.top.map(x=>x[0]).join(' ')).toLowerCase();
+ let base=(DOM.find(d=>d[0].test(hay))||[])[1];if(!base)base=A.kind==='data'?(cols.slice(0,2).join('-')||'data')+'-dataset':A.heads.length?slug(A.heads[0]).slice(0,30):(tw.join('-')||'notes');
+ const e=A.ext||'txt',cam=base.replace(/-(\w)/g,(m,c)=>c.toUpperCase()),L=[base+'.'+e,base.replace(/-/g,'_')+'.'+e,tcase(base)+(A.kind==='data'?' Dataset':''),cam+(A.kind==='data'?'Data':''),base+'-'+new Date().getFullYear()+'.'+e];
+ L.push(base+'-clean.'+e,'my-'+base+'.'+e,base+'-v1.'+e,'raw-'+base+'.'+e,base+'-final.'+e);return L}
+function researchOut(A,p,IN){const L=[];
+ if(A.kind==='data'){L.push('Type: '+A.kind+' (.'+A.ext+') · '+fmtSize(A.size||A.chars)+' · '+Math.max(0,A.lines-1).toLocaleString()+' data rows · '+(A.cols||[]).length+' columns');
+  L.push('Columns:');(A.cols||[]).forEach(c=>L.push('  • '+c.name+' — '+(c.type==='number'?'number, '+c.min+' to '+c.max:'text, '+c.uniq+' distinct (e.g. '+c.top.join(', ')+')')+(c.miss?' · '+c.miss+' missing':'')));
+  L.push('Signals: '+A.miss+' missing cells · '+A.dups+' repeated lines')}
+ else{L.push('Type: '+A.kind+' (.'+A.ext+') · '+fmtSize(A.size||A.chars)+' · '+A.lines.toLocaleString()+' lines'+(A.partial?' total':'')+' · '+A.words.toLocaleString()+' words'+(A.partial?' in the analyzed 2 MB':''));
+  L.push('Top topics: '+(A.top.map(x=>x[0]+' ×'+x[1]).join(', ')||'none'));L.push(A.heads.length?'Outline: '+A.heads.join(' › '):A.funcs.length?'Functions found: '+A.funcs.join(', '):'No headings or functions detected');
+  L.push('Signals: '+A.todos+' TODO/FIXME · '+A.long+' long lines (>120) · '+A.dups+' repeated lines')}
+ L.push('Request understood: '+IN.list.join(' + '));return L.join('\n')}
+function baseCoder(A,text,rev){const H=rev?'/* Revised after human review: added edge-case tests + notes */\n':'';
+ if(A.kind==='code'){const f=A.funcs.slice(0,6);if(!f.length)return H+'// No functions detected. Consider splitting the file into small, testable units.';
+  return H+f.map(n=>"describe('"+n+"', () => {\n  it('returns the expected result', () => {\n    // TODO: arrange, act, assert\n  });"+(rev?"\n  it('handles empty or invalid input', () => {\n    // TODO: edge cases\n  });":'')+"\n});").join('\n\n')}
+ if(A.kind==='json'&&A.partial)return H+'// Large JSON file: only the first 2 MB is loaded, so full validation is skipped.';
+ if(A.kind==='json'){try{const j=JSON.parse(text);const k=Array.isArray(j)?'array of '+j.length+' items':'keys: '+Object.keys(j).slice(0,10).join(', ');return H+'// JSON is valid — '+k+"\nconst data = JSON.parse(text);\nconsole.log(Object.keys(data));"}catch(e){return H+'// JSON is INVALID: '+String(e.message).slice(0,80)}}
+ if(A.kind==='data'){const d=/\t/.test(text.split('\n')[0])?'\\t':',';const cols=text.split(/\r?\n/)[0].split(d.length>1?'\t':',').map(s=>s.trim()).slice(0,12);return H+'// Columns: '+cols.join(' | ')+"\nconst [head, ...rows] = text.trim().split('\\n').map(r => r.split('"+d+"'));\nconsole.log(head, rows.length + ' rows');"}
+ const out=A.heads.length?A.heads:text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean).slice(0,6).map(s=>s.slice(0,60));return H+'Suggested outline:\n'+out.map((s,i)=>(i+1)+'. '+s).join('\n')}
+function coderOut(A,text,rev,IN){const I=IN.list,P=[];if(I.includes('name')){let n=suggestNames(A,text,rev);if(IN.case){const i={snake:1,title:2,camel:3}[IN.case];n.unshift(n.splice(i,1)[0])}n=n.slice(0,IN.N+(rev?2:0));const fn=n.find(x=>/\.\w+$/.test(x))||n[0];P.push('Suggested names:\n'+n.map((x,i)=>(i+1)+'. '+x).join('\n')+'\n\nRename command:\n  mv '+A.name+' '+fn)}P.push(baseCoder(A,text,rev));return P.join('\n\n')}
+function qaOut(A,p,res,cod,revised,IN){const nn=(cod.match(/^\d+\. /gm)||[]).length,C=[
+ [A.chars>0,'File is readable and non-empty','File is empty'],[(A.size||A.chars)<=MAX,'File size is within the 50 MB limit','File is too large'],
+ [A.todos===0,'No TODO/FIXME markers','A.todos TODO/FIXME marker(s) found'.replace('A.todos',A.todos)],[A.long===0,'No very long lines','A.long very long line(s) (>120 chars)'.replace('A.long',A.long)],
+ [A.dups<5,'Few repeated lines ('+A.dups+')',A.dups+' repeated lines: check for duplicates'],[cod.length>20,'Coder produced usable output','Coder output is too short']];
+ if(A.cols)C.push([A.miss===0,'No missing cells in the sampled rows',A.miss+' missing cell(s) in the sampled rows']);
+ if(IN.list.includes('name'))C.push([nn>=IN.N,'Request addressed: '+nn+' of '+IN.N+' requested names delivered','Request NOT addressed: no name suggestions found']);
+ if(IN.list.includes('tests'))C.push([/describe\(/.test(cod),'Request addressed: test skeletons delivered','Request NOT addressed: no tests (only available for code files)']);
+ if(IN.list.includes('review')||IN.list.includes('summary'))C.push([res.length>60,'Request addressed: file reviewed and profiled','Request NOT addressed: no findings']);
+ const pass=C.filter(c=>c[0]).length,sc=Math.round(pass/C.length*100);
+ return{score:sc,text:C.map(c=>(c[0]?'✅ ':'⚠️ ')+(c[0]?c[1]:c[2])).join('\n')+'\nℹ️ '+(revised?'Human requested changes; the Coder revised its draft':'Human approved the first draft')+(IN.fix.length?'\nℹ️ Typos interpreted: '+IN.fix.join(', '):'')+'\n\nQuality score: '+sc+'/100 ('+pass+'/'+C.length+' checks passed)'}}
+/* ---------- UI helpers ---------- */
+function log(k,m){const d=document.createElement('div');d.textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'})+'  '+AG[k].n+': '+m;d.style.color=AG[k].css;$('log').appendChild(d);$('log').scrollTop=1e6}
+const out=(k,t)=>{$('o_'+k).textContent=t};
+function gate(title,body,opts){return new Promise((res,rej)=>{GT={rej};$('gt').textContent='🙋 '+title;$('gb').textContent=body;const b=$('gbt');b.textContent='';
+ opts.forEach((o,i)=>{const e=document.createElement('button');e.className='btn '+(i?'':'g');e.textContent=o;e.onclick=()=>{$('gate').style.display='none';GT=null;res(o)};b.appendChild(e)});$('gate').style.display='block';$('gate').scrollIntoView({block:'nearest',behavior:RM?'auto':'smooth'})})}
+function resetUI(){RUN++;if(GT){GT.rej('x');GT=null}$('gate').style.display='none';$('log').textContent='';['int','orch','res','cod','qa'].forEach(k=>{out(k,'Waiting…');setSt(k,'','Idle')});$('cp').disabled=true;$('go').disabled=false;HD=[];REPORT='';PLAIN='';$('scg').textContent='';$('scs').textContent=SCS0}
+const clamp=(v,lo=0,hi=100)=>Math.max(lo,Math.min(hi,Math.round(v)));
+const spd=ms=>clamp(100-ms/2,40),nl=t=>t.split('\n').length,stars=n=>'★'.repeat(n)+'☆'.repeat(5-n);
+const E2=(tag,txt,p)=>{const e=document.createElement(tag);e.textContent=txt;p.appendChild(e);return e};
+const SCS0='Run the crew to see scores. Metrics are measured from each run and kept only for this tab session.';$('scs').textContent=SCS0;
+let SX={xp:{int:0,orch:0,res:0,cod:0,qa:0},runs:0,best:0};
+try{const r=sessionStorage.getItem('ac1');if(r){const o=JSON.parse(r);if(o&&o.xp)SX={...SX,...o}}}catch(e){}
+function showScore(A,IN,ro,co,Q,T,rev){
+ const nQ=(Q.text.match(/^(✅|⚠️)/gm)||[]).length;
+ const M={int:{Speed:spd(T.int||0),Depth:clamp(nl(IN.brief)*10),Quality:IN.conf,Trust:IN.edited?70:100},orch:{Speed:spd(T.orch||0),Depth:clamp(30+IN.list.length*12+(A.cols?A.cols.length*3:A.funcs.length*2)),Quality:clamp(50+IN.list.length*15+(IN.fix.length?0:5)),Trust:100},
+  res:{Speed:spd(T.res||0),Depth:clamp(nl(ro)*7),Quality:clamp(50+(A.cols?A.cols.length:A.top.length)*8+(A.heads.length||A.funcs.length?15:0)),Trust:100},
+  cod:{Speed:spd(T.cod||0),Depth:clamp(nl(co)*6),Quality:/Request NOT/.test(Q.text)?40:90,Trust:rev?60:100},
+  qa:{Speed:spd(T.qa||0),Depth:clamp(nQ*11),Quality:Q.score,Trust:rev?85:100}};
+ const ks=Object.keys(M),ov={};ks.forEach(k=>{const v=Object.values(M[k]);ov[k]=clamp(v.reduce((a,b)=>a+b,0)/v.length)});
+ const mvp=ks.reduce((a,b)=>ov[b]>ov[a]?b:a),fast=ks.reduce((a,b)=>(T[b]||0)<(T[a]||0)?b:a),team=clamp(ks.reduce((a,k)=>a+ov[k],0)/ks.length);
+ const BD={int:[],orch:[],res:[],cod:[],qa:[]};BD[fast].push('⚡ Speedster');if(M.res.Depth>=90)BD.res.push('🔍 Deep Diver');if(!rev)BD.cod.push('🎯 Crowd Pleaser');if(Q.score>=85)BD.qa.push('🛡️ Gatekeeper');if(IN.list.length>1||IN.fix.length)BD.orch.push('🧠 Clear Thinker');if(IN.conf>=85&&!IN.edited)BD.int.push('🧩 Mind Reader');
+ const lv0={};ks.forEach(k=>{SX.xp[k]=SX.xp[k]||0;lv0[k]=1+Math.floor(SX.xp[k]/150);SX.xp[k]+=ov[k]});SX.runs++;SX.best=Math.max(SX.best,team);
+ try{sessionStorage.setItem('ac1',JSON.stringify(SX))}catch(e){}
+ const g=$('scg');g.textContent='';const tx=[];
+ ks.forEach(k=>{const lv=1+Math.floor(SX.xp[k]/150),d=document.createElement('div');d.className='sc'+(k===mvp?' mvp':'');d.style.setProperty('--c',AG[k].css);
+  const h=E2('div','',d);h.className='sh';E2('b',AG[k].n+(k===mvp?' 👑':''),h);E2('span','Lv '+lv,h);
+  E2('div',stars(clamp(ov[k]/20,1,5))+'  '+ov[k]+'/100',d).className='ss';
+  Object.entries(M[k]).forEach(([n,v])=>{const r=E2('div','',d);r.className='mt';E2('span',n,r);const bar=E2('i','',r),b=document.createElement('b');bar.appendChild(b);E2('em',v,r);setTimeout(()=>{b.style.width=v+'%'},40)});
+  E2('div','+'+ov[k]+' XP · compute '+(T[k]||0).toFixed(1)+' ms',d).className='sub';
+  const bb=E2('div','',d);BD[k].forEach(x=>{E2('span',x,bb).className='bd'});g.appendChild(d);if(lv>lv0[k])toast('⬆️ '+AG[k].n+' reached level '+lv+'!');
+  tx.push('- '+AG[k].n+': '+ov[k]+'/100 '+stars(clamp(ov[k]/20,1,5))+' (Lv '+lv+', +'+ov[k]+' XP)'+(BD[k].length?' '+BD[k].join(' '):''))});
+ $('scs').textContent='Team score '+team+'/100 · MVP: '+AG[mvp].n+' 👑 · Run #'+SX.runs+' this session · Best team score '+SX.best+'. Trust = human approvals; Speed = real compute time.';
+ if(A3[mvp])A3[mvp].party=performance.now()+4000;
+ return 'SCORECARD (team '+team+'/100, MVP '+AG[mvp].n+')\n'+tx.join('\n')}
+/* ---------- plain-English report ---------- */
+const pl=(n,w)=>n+' '+w+(n===1?'':'s');
+const PA={review:'look the file over and tell you what is in it',name:'suggest a good name for it',summary:'explain what it contains',tests:'prepare checks to make sure it works',improve:'find things that could be better'};
+const WORDS=[[/(\d+) missing cell\(s\)/g,(m,n)=>pl(+n,'empty box')],[/in the sampled rows/g,'in the part we checked'],[/(\d+) TODO\/FIXME marker\(s\)/g,(m,n)=>pl(+n,'unfinished-work note')],[/very long line\(s\) \(>120 chars\)/g,'very long line(s) that may be hard to read'],[/repeated lines: check for duplicates/g,'repeated entries, worth checking for duplicates']];
+function plainReport(A,IN,co,Q,rev,SCD){let top=null;
+ const kind={data:'a table of data (like a spreadsheet)',code:'a computer program file',json:'a structured data file',text:'a text document'}[A.kind]||'a file';
+ const L=['🗣️ PLAIN-ENGLISH REPORT','Written so anyone can follow it, with no technical background needed.','','📄 WHAT YOU GAVE US','"'+A.name+'" is '+kind+', about '+fmtSize(A.size||A.chars)+' in size.','','🎯 WHAT YOU ASKED','You asked us to '+IN.list.map(k=>PA[k]).join(', and to ')+'.'+(IN.fix.length?' (There was a small typo in your request, but we understood it.)':''),'','🔍 WHAT WE FOUND'];
+ if(A.kind==='data'){const c=A.cols||[];L.push('• It has about '+Math.max(0,A.lines-1).toLocaleString()+' entries (rows) and '+c.length+' categories (columns): '+c.map(x=>x.name).join(', ')+'.');L.push(A.miss?'• '+(A.miss===1?'1 box in the table is empty':A.miss+' boxes in the table are empty')+'. You may want to fill '+(A.miss===1?'it':'them')+' in or remove the entry.':'• No empty boxes were found in the part we checked.')}
+ else if(A.kind==='code'){L.push('• It is a program with '+pl(A.funcs.length,'small task')+', which programmers call functions'+(A.funcs.length?': '+A.funcs.slice(0,6).join(', '):'')+'.');L.push(A.todos?'• The author left '+pl(A.todos,'note')+' about work still to be finished.':'• There are no notes about unfinished work.')}
+ else{L.push('• It has about '+A.words.toLocaleString()+' words'+(A.top.length?'. The most common subjects are: '+A.top.slice(0,4).map(x=>x[0]).join(', '):'')+'.')}
+ if(A.dups>1)L.push('• '+A.dups+' entries look repeated. If that is not on purpose, remove the extras.');
+ const nm=(co.match(/Suggested names:\n([\s\S]*?)\n\nRename/)||[])[1];
+ if(nm){const n=nm.split('\n').map(x=>x.replace(/^\d+\. /,''));top=n[0];L.push('','🏷️ NAME IDEAS','Our top pick is "'+n[0]+'". It has no spaces, which keeps it safe to use on websites and in programs.','Other options: '+n.slice(1).map(x=>'"'+x+'"').join(', ')+'.')}
+ const bad=Q.text.split('\n').filter(x=>x.indexOf('⚠')===0).map(x=>x.replace(/^⚠️?\s*/,'')),m=Q.text.match(/\((\d+)\/(\d+) checks passed\)/),lvl=Q.score>=90?'excellent':Q.score>=75?'good':'in need of attention';
+ L.push('','✅ HOW GOOD IS THE RESULT','Our checker passed '+(m?m[1]+' of '+m[2]:'most')+' quality checks. Overall: '+lvl+' ('+Q.score+' out of 100).');
+ bad.forEach(b=>L.push('• To look at: '+WORDS.reduce((t,w)=>t.replace(w[0],w[1]),b)+'.'));
+ L.push('','🤝 YOUR DECISIONS');
+ HD.forEach(x=>{L.push('• '+(/^Brief: Looks right/.test(x)?'You confirmed we understood your request.':/^Brief:/.test(x)?'You narrowed the request to: '+x.split(': ')[1].toLowerCase().replace('only ','')+'.':/^Plan: Approve/.test(x)?'You approved our plan before any work began.':/^Plan:/.test(x)?'You stopped the plan.':/Approve draft/.test(x)?'You approved the first draft.':'You asked for changes, and we improved the draft.'))});
+ const t=SCD.match(/team (\d+)\/100, MVP ([^)]+)\)/);if(t)L.push('','⭐ CREW RATING','Our five helpers scored '+t[1]+' out of 100 as a team. Star performer: '+t[2]+'.');
+ L.push('','➡️ WHAT TO DO NEXT',top?'Rename your file to "'+top+'".':bad.length?'Look at the points marked "To look at", then run the crew again.':'Nothing urgent. Your file looks fine.','Want the exact technical details? Tap the Technical button above.');
+ return L.join('\n')}
+function showRep(){$('m1').className='btn'+(PM?'':' p');$('m2').className='btn'+(PM?' p':'');if(REPORT)out('orch',PM&&PLAIN?PLAIN:REPORT)}
+$('m1').addEventListener('click',()=>{PM=false;showRep()});$('m2').addEventListener('click',()=>{PM=true;showRep();if(REPORT)toast('Showing the plain-English version')});
+/* ---------- pipeline ---------- */
+async function run(){if(!F){toast('Add a file or use the sample first');return}resetUI();const id=RUN;$('go').disabled=true;
+ const W=async ms=>{await sleep(ms);if(id!==RUN)throw 'x'};const T={},tm=(k,f)=>{const t0=performance.now(),r=f();T[k]=(T[k]||0)+performance.now()-t0;return r};const prompt=$('pr').value.trim()||'Review this file and suggest improvements';
+ try{
+  setSt('int','work','Reading your request…');log('int','Reading your prompt and file name to work out what you want.');await W(700);
+  let IN=tm('int',()=>interpret(prompt,F));
+  if($('cf').checked||IN.conf<70){setSt('int','wait','Checking with you');log('int','Brief ready. Waiting for you to confirm.');const gi=await gate('Did I understand you?',IN.brief+(IN.conf<70?'\n\nI am not very sure. Please choose:':''),['Looks right','Only suggest names','Only review','Only summarize']);if(id!==RUN)throw 'x';HD.push('Brief: '+gi);IN=applyChoice(IN,gi,F)}
+  setSt('int','work','Sharing the brief…');log('int','Brief confirmed (confidence '+IN.conf+'%). Sharing it with the whole crew.');await Promise.all(['orch','res','cod','qa'].map(k=>send('int',k,AG.int.c)));if(id!==RUN)throw 'x';out('int',IN.brief);setSt('int','done','Brief shared');
+  setSt('orch','work','Reading file…');log('orch','Reading '+F.name+' ('+F.text.length+' chars) locally.');await W(700);
+  const A=tm('orch',()=>analyze(F.name,F.text));A.size=F.size;A.partial=F.partial;if(F.lines)A.lines=F.lines;log('orch','Brief received from the Interpreter: '+IN.list.join(' + ')+'.');
+  const plan=['Researcher → '+(A.kind==='data'?'profile every column (types, ranges, missing values)':'map topics, outline and risk signals'),'Coder → '+(IN.list.includes('name')?'suggest file names and a rename command':A.kind==='code'?'draft test skeletons for '+Math.min(6,A.funcs.length)+' function(s)':'draft a helper snippet'),'QA Reviewer → verify the request was actually addressed'];
+  log('orch','Plan ready: '+plan.length+' tasks. Waiting for human approval.');setSt('orch','wait','Waiting for you');
+  const g1=await gate('Approve the plan?','Prompt: "'+prompt+'"'+(IN.fix.length?' (read '+IN.fix.join(', ')+')':'')+'\nUnderstood as: '+IN.list.join(' + ')+'\nFile: '+F.name+' ('+A.kind+', '+A.lines+' lines)\n\n'+plan.map((p,i)=>(i+1)+'. '+p).join('\n'),['Approve plan','Reject & stop']);if(id!==RUN)throw 'x';
+  HD.push('Plan: '+g1);if(g1!=='Approve plan'){log('orch','Stopped by human.');setSt('orch','','Stopped by you');$('go').disabled=false;return}
+  setSt('orch','work','Delegating…');await send('orch','res',AG.res.c);if(id!==RUN)throw 'x';
+  setSt('res','work','Researching…');log('res','Scanning topics, structure and signals…');await W(900);const ro=tm('res',()=>researchOut(A,prompt,IN));out('res',ro);setSt('res','done','Done');log('res','Findings sent to Orchestrator.');await send('res','orch',AG.res.c);
+  await send('orch','cod',AG.cod.c);if(id!==RUN)throw 'x';
+  setSt('cod','work','Coding…');log('cod','Drafting output…');await W(900);let co=tm('cod',()=>coderOut(A,F.text,false,IN));out('cod',co);setSt('cod','wait','Waiting for review');setSt('orch','wait','Waiting for you');
+  log('cod','Draft ready. Waiting for human review.');
+  const g2=await gate('Review the Coder’s draft','Draft output:\n\n'+co.split('\n').slice(0,12).join('\n')+(co.split('\n').length>12?'\n…':''),['Approve draft','Request changes']);if(id!==RUN)throw 'x';
+  HD.push('Coder draft: '+g2);let rev=false;
+  if(g2==='Request changes'){rev=true;setSt('orch','work','Sending feedback…');log('orch','Human asked for changes — sending back to Coder.');await send('orch','cod',AG.cod.c);setSt('cod','work','Revising…');await W(900);co=tm('cod',()=>coderOut(A,F.text,true,IN));out('cod',co);log('cod','Revision complete.')}
+  setSt('cod','done','Done');await send('cod','orch',AG.cod.c);
+  await send('orch','qa',AG.qa.c);if(id!==RUN)throw 'x';setSt('qa','work','Reviewing…');log('qa','Running '+8+' quality checks…');await W(900);
+  const Q=tm('qa',()=>qaOut(A,prompt,ro,co,rev,IN));out('qa',Q.text);setSt('qa','done','Score '+Q.score);log('qa','Review complete: '+Q.score+'/100.');await send('qa','orch',AG.qa.c);
+  setSt('orch','work','Compiling report…');await W(600);
+  const SCD=showScore(A,IN,ro,co,Q,T,rev);REPORT='AGENT CREW REPORT\nFile: '+F.name+'\nPrompt: '+prompt+'\n\nBRIEF (Interpreter)\n'+IN.brief+'\n\nRESEARCH\n'+ro+'\n\nCODER ('+(rev?'revised':'first draft')+')\n'+co+'\n\nQA\n'+Q.text+'\n\nHUMAN DECISIONS\n- '+HD.join('\n- ')+'\n\n'+SCD;
+  PLAIN=plainReport(A,IN,co,Q,rev,SCD);showRep();setSt('orch','done','Finished');log('orch','Final report ready.');$('cp').disabled=false;$('go').disabled=false;toast('✅ Crew finished')
+ }catch(e){if(e!=='x'){log('orch','Something went wrong: '+(e&&e.message||e));$('go').disabled=false}}}
+/* ---------- file handling ---------- */
+const MAX=50*1024*1024,HEAD=2*1024*1024,CH=8*1024*1024;
+const fmtSize=n=>n>=1048576?(n/1048576).toFixed(1)+' MB':Math.max(1,Math.round(n/1024))+' KB';
+function setFile(name,text,size,lines){if(/\u0000/.test(text)){toast('That looks like a binary file. Try a text file.');return false}
+ F={name:name,text:text,size:size||text.length,lines:lines||0,partial:!!size&&size>HEAD};
+ $('fn').textContent='✔ '+name+' · '+fmtSize(F.size)+(F.partial?' (first 2 MB analyzed in detail)':'');return true}
+const rd=(blob,m)=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(m==='buf'?r.result:String(r.result));r.onerror=()=>rej(r.error);m==='buf'?r.readAsArrayBuffer(blob):r.readAsText(blob)});
+let RD=0;
+async function readFile(f){if(!f)return;if(f.size>MAX){toast('File is over 50 MB');return}const id=++RD;F=null;$('go').disabled=true;
+ try{$('fn').textContent='Reading '+f.name+'…';const head=await rd(f.slice(0,HEAD));if(id!==RD)return;
+  if(/\u0000/.test(head)){$('fn').textContent='No file yet';toast('That looks like a binary file. Try a text file.');return}
+  let lines=0,last=0;if(f.size>HEAD){for(let o=0;o<f.size;o+=CH){const b=new Uint8Array(await rd(f.slice(o,o+CH),'buf'));for(let i=0;i<b.length;i++)if(b[i]===10)lines++;if(b.length)last=b[b.length-1];if(id!==RD)return;$('fn').textContent='Scanning '+f.name+'… '+Math.min(100,Math.round((o+CH)/f.size*100))+'%'}if(last!==10)lines++}
+  setFile(f.name,head,f.size,lines)}catch(e){$('fn').textContent='No file yet';toast('Could not read that file')}finally{if(id===RD)$('go').disabled=false}}
+$('fi').addEventListener('change',e=>readFile(e.target.files[0]));
+const dz=$('dz');['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('over')}));
+['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('over')}));dz.addEventListener('drop',e=>readFile(e.dataTransfer&&e.dataTransfer.files[0]));
+$('smp').addEventListener('click',()=>{setFile(SAMPLE.name,SAMPLE.text);if(!$('pr').value)$('pr').value='Review this file and suggest tests';toast('Sample loaded')});
+$('go').addEventListener('click',run);$('rs').addEventListener('click',()=>{resetUI();toast('Reset')});
+$('cp').addEventListener('click',()=>{try{navigator.clipboard.writeText(PM&&PLAIN?PLAIN:REPORT).then(()=>toast('📋 Report copied'),()=>toast('Select the text and copy manually'))}catch(e){toast('Select the text and copy manually')}});
+init3D();
+</script>
+</body>
+</html>

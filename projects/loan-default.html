@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080b12" id="themeColorMeta">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="Identify factors associated with borrower default and evaluate loan portfolio risk across credit, DTI, tenure, and loan attributes.">
+  <title>Bank Loan Default Risk Analysis | Mohammed Manzoor Ul Hassan</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body class="case-page">
+  <div class="noise" aria-hidden="true"></div>
+  <div class="progress" aria-hidden="true"><span style="width:100%"></span></div>
+  <header class="nav is-scrolled">
+    <a class="brand" href="../index.html">MMUH</a>
+    <nav class="nav-links case-nav-links" aria-label="Project navigation">
+        <a href="../index.html#projects">Projects</a>
+        <a href="../index.html#about">About</a>
+        <a href="../index.html#contact">Contact</a>
+    </nav>
+    <div class="theme-control case-theme-control">
+      <button class="theme-trigger" id="themeTrigger" type="button" aria-expanded="false" aria-controls="themeMenu" aria-haspopup="true">
+        <span class="theme-trigger-icon" aria-hidden="true">◐</span><span>Theme</span>
+      </button>
+      <div class="theme-menu" id="themeMenu" role="menu" aria-label="Choose website theme" hidden>
+        <p class="theme-menu-title">Choose atmosphere</p>
+        <button type="button" class="theme-option is-selected" data-theme-choice="midnight" role="menuitemradio" aria-checked="true"><span class="theme-swatch midnight"></span><span><b>Midnight Data</b><small>Default · cinematic</small></span></button>
+        <button type="button" class="theme-option" data-theme-choice="aurora" role="menuitemradio" aria-checked="false"><span class="theme-swatch aurora"></span><span><b>Aurora AI</b><small>Bright blue · cyan · violet</small></span></button>
+        <button type="button" class="theme-option" data-theme-choice="emerald" role="menuitemradio" aria-checked="false"><span class="theme-swatch emerald"></span><span><b>Emerald Analytics</b><small>Fresh green · teal</small></span></button>
+        <button type="button" class="theme-option" data-theme-choice="cosmic" role="menuitemradio" aria-checked="false"><span class="theme-swatch cosmic"></span><span><b>Cosmic Violet</b><small>Luminous violet · blue</small></span></button>
+        <button type="button" class="theme-option" data-theme-choice="light" role="menuitemradio" aria-checked="false"><span class="theme-swatch light"></span><span><b>Light Mode</b><small>Blue sky · white clouds</small></span></button>
+      </div>
+    </div>
+  </header>
+  <main class="case-main">
+
+    <section class="case-hero">
+      <div>
+        <p class="case-kicker">RISK ANALYTICS</p>
+        <h1>Bank Loan Default Risk Analysis</h1>
+        <p class="case-lede">Identify factors associated with borrower default and evaluate loan portfolio risk across credit, DTI, tenure, and loan attributes.</p>
+        <div class="case-hero-actions">
+          <a class="btn primary" href="https://mohammedmanzoor1.github.io/bank-loan-default-risk-analysis/" target="_blank" rel="noopener noreferrer">Open Dashboard ↗</a>
+          <a class="btn ghost" href="https://github.com/mohammedmanzoor1/bank-loan-default-risk-analysis" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+        </div>
+        <p class="case-signature">MMUH · DATA ANALYST</p>
+        <a class="case-back-link" href="../index.html#projects">← Back to all projects</a>
+      </div>
+      <aside class="case-meta-card">
+        <img src="../assets/project-02-loan.png" alt="Bank Loan Default Risk Analysis dashboard screenshot" loading="eager">
+        <p class="case-meta-label">Tools</p>
+        <div class="case-tools"><span>SQL Server</span><span>Tableau</span></div>
+        <p class="case-meta-label">Dataset / source</p>
+        <p>255,347 loan records with borrower demographics, credit and financial attributes such as credit score and DTI, mortgage/co-signer status, plus loan amount, rate, term, and purpose.</p>
+      </aside>
+    </section>
+    <section class="case-section">
+      <div class="case-grid">
+        <article class="case-panel">
+          <p class="case-kicker">Business problem / purpose</p>
+          <h2>Why this analysis?</h2>
+          <p>Identify key factors influencing borrower default and evaluate loan portfolio risk to support underwriting decisions, reduce credit risk, and improve portfolio performance.</p>
+        </article>
+        <article class="case-panel">
+          <p class="case-kicker">What I did</p>
+          <h2>From raw data to dashboard.</h2>
+          <ol class="case-list"><li>Reviewed dataset structure and standardized column naming conventions.</li><li>Created Credit Score Band, DTI Band, EMI-to-Income Ratio, and Tenure Stability derived fields.</li><li>Ran SQL analysis to calculate default rates and evaluate risk across loan purpose, credit score, DTI, and employment stability.</li><li>Built a Tableau dashboard with KPI cards, default-rate-by-purpose, credit-score risk, DTI risk, and employment-stability visuals, plus interactive filters.</li></ol>
+        </article>
+        <article class="case-panel wide">
+          <p class="case-kicker">Key analysis / KPIs</p>
+          <h2>The measures that mattered.</h2>
+          <div class="case-kpis"><div class="case-kpi"><strong>255,347</strong><span>Total Loans</span></div><div class="case-kpi"><strong>29,653</strong><span>Default Loans</span></div><div class="case-kpi"><strong>11.61%</strong><span>Overall Default Rate</span></div><div class="case-kpi"><strong>18.27%</strong><span>Highest segment</span></div></div>
+        </article>
+        <article class="case-panel wide">
+          <p class="case-kicker">Key insights</p>
+          <h2>What the analysis showed.</h2>
+          <ul class="case-list"><li>Unstable-tenure borrowers default at 16.24% versus 10.46% for stable-tenure—the widest single-factor gap in the data.</li><li>Weaker credit profiles and higher DTI both correlate with higher default, though credit score alone is a fairly weak separator: 12.47% poor versus 10.18% excellent.</li><li>Combined risk factors compound sharply—Poor credit + Very High DTI + Unstable tenure reaches an 18.27% default rate, the highest segment identified.</li></ul>
+        </article>
+      </div>
+    </section>
+  </main>
+  <script src="../case-theme.js"></script>
+</body>
+</html>
