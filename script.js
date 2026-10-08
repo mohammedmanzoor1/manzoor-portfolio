@@ -65,7 +65,7 @@ try {
 } catch (_) { /* use default */ }
 applyTheme(savedTheme, { persist: false });
 
-[[themeTrigger, themeMenu], [mobileThemeTrigger, mobileThemeMenu]].forEach(([trigger, menu]) => {
+[[themeTrigger, themeMenu]].forEach(([trigger, menu]) => {
   if (!trigger || !menu) return;
   trigger.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -619,6 +619,7 @@ window.addEventListener('scroll', () => {
 window.addEventListener('resize', updateActiveNav);
 
 function closeMenu() {
+  if (!nav || !navToggle) return;
   nav.classList.remove('is-open');
   navToggle.setAttribute('aria-expanded', 'false');
   navToggle.setAttribute('aria-label', 'Open menu');
@@ -626,18 +627,37 @@ function closeMenu() {
 }
 
 function openMenu() {
+  if (!nav || !navToggle || !navPanel) return;
+  closeThemeMenu(mobileThemeMenu, mobileThemeTrigger);
   nav.classList.add('is-open');
   navToggle.setAttribute('aria-expanded', 'true');
   navToggle.setAttribute('aria-label', 'Close menu');
   body.classList.add('menu-open');
-  const first = navPanel.querySelector('a');
-  if (first) first.focus();
 }
 
-navToggle.addEventListener('click', () => {
-  const expanded = navToggle.getAttribute('aria-expanded') === 'true';
-  if (expanded) closeMenu();
-  else openMenu();
+if (navToggle) {
+  navToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const expanded = navToggle.getAttribute('aria-expanded') === 'true';
+    if (expanded) closeMenu();
+    else openMenu();
+  });
+}
+
+// Keep the two phone dropdowns independent. Tapping Theme closes Menu first.
+if (mobileThemeTrigger) {
+  mobileThemeTrigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeMenu();
+    const expanded = mobileThemeTrigger.getAttribute('aria-expanded') === 'true';
+    if (expanded) closeThemeMenu(mobileThemeMenu, mobileThemeTrigger);
+    else openThemeMenu(mobileThemeMenu, mobileThemeTrigger);
+  });
+}
+
+// Close the mobile menu when a navigation item is selected.
+document.querySelectorAll('#primaryNav .nav-links a').forEach((link) => {
+  link.addEventListener('click', closeMenu);
 });
 
 window.addEventListener('scroll', () => {
@@ -754,18 +774,21 @@ document.addEventListener('keydown', (e) => {
 // values survive navigation within this site but are discarded when the browsing
 // session/tab ends. The visitor name is optional and is never permanently persisted.
 
-/* Profile card: cursor-reactive photo + true 3D flip to the video side. */
+/* Profile card: robust single-click / double-click / tap interaction. */
 const profileCard = document.getElementById('profileCard');
 const profileDepth = document.getElementById('photoDepth');
 const profileVideo = document.getElementById('profileVideo');
-const profileVideoBg = document.getElementById('profileVideoBg');
 if (profileDepth && profileCard && profileVideo) {
   const videoCard = profileVideo.closest('[data-video-src]');
   const videoSrc = videoCard?.dataset.videoSrc || 'assets/profile-video.mp4';
-  let lastTouchTap = 0;
-  let suppressNextClick = false;
   let videoWired = false;
   let videoRunToken = 0;
+  let interactionLockUntil = 0;
+
+  profileVideo.muted = true;
+  profileVideo.setAttribute('muted', '');
+  profileVideo.playsInline = true;
+  profileVideo.setAttribute('playsinline', '');
 
   function resetProfileMotion() {
     profileDepth.style.transform = '';
@@ -777,17 +800,18 @@ if (profileDepth && profileCard && profileVideo) {
     profileDepth.classList.toggle('is-flipped', flipped);
     profileDepth.setAttribute('aria-pressed', String(flipped));
     profileDepth.setAttribute('aria-label', flipped
-      ? 'Profile video of Mohammed Manzoor Ul Hassan. Click to return to the profile photo.'
-      : 'Profile photo of Mohammed Manzoor Ul Hassan, Data Analyst. Click to flip and play the profile video on desktop or double-tap on touch devices.');
+      ? 'Profile video of Mohammed Manzoor Ul Hassan. Tap or click to return to the profile photo.'
+      : 'Profile photo of Mohammed Manzoor Ul Hassan, Data Analyst. Tap or click to play the profile video.');
   }
 
   function stopProfileVideo({returnToFront = true} = {}) {
     videoRunToken += 1;
     try { profileVideo.pause(); } catch (_) {}
-    try { if (profileVideoBg) profileVideoBg.pause(); } catch (_) {}
     try { profileVideo.currentTime = 0; } catch (_) {}
-    try { if (profileVideoBg) profileVideoBg.currentTime = 0; } catch (_) {}
-    if (returnToFront) setFlipped(false);
+    if (returnToFront) {
+      setFlipped(false);
+      resetProfileMotion();
+    }
   }
 
   function wireProfileVideo() {
@@ -795,10 +819,6 @@ if (profileDepth && profileCard && profileVideo) {
     if (!videoSrc) return false;
     profileVideo.src = videoSrc;
     profileVideo.load();
-    if (profileVideoBg) {
-      profileVideoBg.src = videoSrc;
-      profileVideoBg.load();
-    }
     videoWired = true;
     return true;
   }
@@ -807,66 +827,41 @@ if (profileDepth && profileCard && profileVideo) {
     if (!wireProfileVideo()) return;
     const runToken = ++videoRunToken;
     setFlipped(true);
+    resetProfileMotion();
     try { profileVideo.pause(); } catch (_) {}
-    try { if (profileVideoBg) profileVideoBg.pause(); } catch (_) {}
     try { profileVideo.currentTime = 0; } catch (_) {}
-    try { if (profileVideoBg) profileVideoBg.currentTime = 0; } catch (_) {}
 
     try {
-      const bgPromise = profileVideoBg?.play();
-      const fgPromise = profileVideo.play();
-      if (bgPromise && typeof bgPromise.catch === 'function') bgPromise.catch(() => {});
-      if (fgPromise && typeof fgPromise.catch === 'function') {
-        await fgPromise;
-      }
-    } catch (_) {
+      await profileVideo.play();
+    } catch (error) {
       if (runToken !== videoRunToken) return;
-      stopProfileVideo();
+      // A browser may reject playback for policy reasons. Keep the flip visible
+      // rather than immediately snapping the card back and looking broken.
+      profileDepth.dataset.videoState = 'blocked';
     }
   }
 
   function toggleProfileCard() {
-    if (profileDepth.classList.contains('is-flipped')) {
-      stopProfileVideo({returnToFront: true});
-    } else {
-      playProfileVideo();
-    }
+    const now = performance.now();
+    // A double-click/tap generates two click events. Treat the second event as
+    // part of the same gesture so the card never flips twice and cancels itself.
+    if (now < interactionLockUntil) return;
+    interactionLockUntil = now + 380;
+    if (profileDepth.classList.contains('is-flipped')) stopProfileVideo();
+    else playProfileVideo();
   }
 
-  profileVideo.addEventListener('timeupdate', () => {
-    if (!profileVideoBg || !videoWired || profileVideoBg.seeking) return;
-    if (Math.abs(profileVideoBg.currentTime - profileVideo.currentTime) > 0.08) {
-      try { profileVideoBg.currentTime = profileVideo.currentTime; } catch (_) {}
-    }
-  });
   profileVideo.addEventListener('ended', () => stopProfileVideo({returnToFront: true}));
-  profileVideo.addEventListener('error', () => stopProfileVideo({returnToFront: true}));
-  profileVideoBg?.addEventListener('error', () => {});
-
-  profileDepth.addEventListener('pointerup', (e) => {
-    if (e.pointerType === 'mouse' || e.pointerType === 'pen') {
-      toggleProfileCard();
-      return;
-    }
-    if (e.pointerType === 'touch') {
-      const now = performance.now();
-      if (now - lastTouchTap < 520) {
-        lastTouchTap = 0;
-        suppressNextClick = true;
-        toggleProfileCard();
-      } else {
-        lastTouchTap = now;
-        suppressNextClick = false;
-      }
-    }
+  profileVideo.addEventListener('error', () => {
+    profileDepth.dataset.videoState = 'error';
+    stopProfileVideo({returnToFront: true});
   });
 
-  profileDepth.addEventListener('click', () => {
-    if (suppressNextClick) {
-      suppressNextClick = false;
-      return;
-    }
-    /* Mouse/pen pointerup already handles desktop; touch requires double-tap. */
+  // One click handler works for mouse, pen and touch. The short interaction
+  // lock above makes both single-click and double-click/tap reliable.
+  profileDepth.addEventListener('click', (e) => {
+    e.preventDefault();
+    toggleProfileCard();
   });
 
   profileDepth.addEventListener('keydown', (e) => {
@@ -877,7 +872,7 @@ if (profileDepth && profileCard && profileVideo) {
 
   if (!reduceMotion && window.matchMedia('(pointer: fine)').matches) {
     profileDepth.addEventListener('pointermove', (e) => {
-      if (e.pointerType !== 'mouse') return;
+      if (e.pointerType !== 'mouse' || profileDepth.classList.contains('is-flipped')) return;
       const r = profileDepth.getBoundingClientRect();
       const x = (e.clientX - r.left) / r.width - 0.5;
       const y = (e.clientY - r.top) / r.height - 0.5;

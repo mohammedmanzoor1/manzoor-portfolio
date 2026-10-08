@@ -4540,3 +4540,370 @@ body[data-theme="light"] .hero-photo-wrap .orbit-two {
   .mobile-theme-menu .theme-option { min-height: 46px; }
   .mobile-theme-menu .theme-menu-title { margin: 4px 9px 8px; }
 }
+
+
+/* FINAL MOBILE HEADER FIX — phone only. Keep Menu and Theme above all hero layers. */
+@media (max-width: 600px) {
+  .nav#siteNav {
+    z-index: 1000;
+    min-height: 64px;
+    position: fixed;
+    overflow: visible !important;
+  }
+
+  .nav#siteNav .mobile-nav-actions {
+    position: relative;
+    z-index: 1003;
+    overflow: visible;
+  }
+
+  .nav#siteNav .mobile-nav-actions .nav-toggle,
+  .nav#siteNav .mobile-theme-trigger {
+    position: relative;
+    z-index: 1004;
+  }
+
+  .nav#siteNav .nav-panel {
+    position: fixed !important;
+    top: 64px !important;
+    left: 5vw !important;
+    right: 5vw !important;
+    width: auto !important;
+    max-height: calc(100dvh - 82px) !important;
+    min-height: 0 !important;
+    display: block !important;
+    padding: 12px 16px 18px !important;
+    margin: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    z-index: 1002 !important;
+    box-sizing: border-box !important;
+  }
+
+  .nav#siteNav .nav-panel .nav-links {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    gap: 0 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .nav#siteNav .nav-panel .nav-links a {
+    display: flex !important;
+    align-items: center !important;
+    min-height: 46px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 13px 6px !important;
+    color: var(--theme-text-strong) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    text-decoration: none !important;
+  }
+
+  .nav#siteNav .nav-panel .nav-links a::after {
+    display: none !important;
+  }
+
+  .nav#siteNav .nav-panel .nav-resume {
+    display: inline-flex !important;
+    color: var(--theme-text-strong) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .nav#siteNav .mobile-theme-control {
+    position: relative !important;
+    z-index: 1005 !important;
+    overflow: visible !important;
+  }
+
+  .nav#siteNav .mobile-theme-menu {
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    right: 0 !important;
+    left: auto !important;
+    width: min(300px, calc(100vw - 24px)) !important;
+    max-height: calc(100dvh - 90px) !important;
+    overflow-y: auto !important;
+    z-index: 1006 !important;
+  }
+
+  .nav#siteNav .mobile-theme-menu[hidden] {
+    display: none !important;
+  }
+
+  .nav#siteNav .mobile-theme-menu .theme-option {
+    display: grid !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+}
+
+/* FINAL PROFILE VIDEO FIX — one reliable tap/click on every device. */
+.photo-depth { touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+.profile-video, .profile-video-bg { pointer-events: none; }
+@media (max-width: 600px) {
+  .photo-depth { cursor: pointer; }
+}
+
+/* FINAL OVERRIDE v2 — force a real mobile dropdown panel with measurable height. */
+@media (max-width: 600px) {
+  .nav#siteNav {
+    height: 64px !important;
+    min-height: 64px !important;
+  }
+
+  .nav#siteNav .nav-panel {
+    top: 64px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 80px) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .nav#siteNav.is-open .nav-panel {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+}
+
+/* FINAL MOBILE MENU HEIGHT — prevent the dropdown from collapsing to a thin strip. */
+@media (max-width: 600px) {
+  .nav#siteNav .nav-panel,
+  .nav#siteNav.is-open .nav-panel {
+    height: min(430px, calc(100dvh - 82px)) !important;
+    max-height: calc(100dvh - 82px) !important;
+  }
+}
+
+/* Final mobile readability: make dropdown surfaces opaque enough that hero text never shows through. */
+@media (max-width: 600px) {
+  .nav#siteNav .nav-panel,
+  .nav#siteNav .mobile-theme-menu {
+    background: rgb(10 14 23 / 0.985) !important;
+  }
+
+  body[data-theme="light"] .nav#siteNav .nav-panel,
+  body[data-theme="light"] .nav#siteNav .mobile-theme-menu {
+    background: rgb(255 255 255 / 0.985) !important;
+  }
+}
+
+
+/* ================================================================
+   FINAL MOBILE MENU + PROFILE VIDEO HARDENING
+   These rules intentionally sit last so older responsive rules cannot
+   collapse or clip the controls on real phones.
+   ================================================================ */
+@media (max-width: 600px) {
+  .nav#siteNav {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: 64px !important;
+    min-height: 64px !important;
+    max-height: 64px !important;
+    padding: 8px 5vw !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+    z-index: 10000 !important;
+  }
+
+  .nav#siteNav .mobile-nav-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    position: relative !important;
+    z-index: 10003 !important;
+  }
+
+  .nav#siteNav .mobile-nav-actions .nav-toggle,
+  .nav#siteNav .mobile-nav-actions .mobile-theme-trigger {
+    display: inline-flex !important;
+    position: relative !important;
+    flex: 0 0 auto !important;
+    min-width: 76px !important;
+    width: auto !important;
+    height: 40px !important;
+    z-index: 10004 !important;
+  }
+
+  .nav#siteNav .nav-panel#primaryNav {
+    position: fixed !important;
+    top: 64px !important;
+    left: 5vw !important;
+    right: 5vw !important;
+    bottom: auto !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 78px) !important;
+    margin: 0 !important;
+    padding: 10px 16px 16px !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    background: rgb(8 12 20 / 0.985) !important;
+    border: 1px solid var(--line) !important;
+    border-top: 0 !important;
+    border-radius: 0 0 18px 18px !important;
+    box-shadow: 0 24px 60px rgb(0 0 0 / 0.55) !important;
+    backdrop-filter: blur(20px) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(-8px) !important;
+    pointer-events: none !important;
+    z-index: 10002 !important;
+  }
+
+  .nav#siteNav.is-open .nav-panel#primaryNav {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+    pointer-events: auto !important;
+  }
+
+  .nav#siteNav .nav-panel .nav-links {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 0 !important;
+    margin: 0 !important;
+  }
+
+  .nav#siteNav .nav-panel .nav-links a {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    min-height: 48px !important;
+    padding: 13px 6px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    color: var(--theme-text-strong) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    border-bottom: 1px solid rgba(255,255,255,.10) !important;
+    font-size: .82rem !important;
+    line-height: 1.25 !important;
+    letter-spacing: .11em !important;
+    text-decoration: none !important;
+  }
+
+  .nav#siteNav .nav-panel .nav-links a::after {
+    display: none !important;
+  }
+
+  .nav#siteNav .nav-panel .nav-resume {
+    display: inline-flex !important;
+    align-items: center !important;
+    margin-top: 12px !important;
+    color: var(--theme-text-strong) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .nav#siteNav .nav-panel > .theme-control { display: none !important; }
+
+  .nav#siteNav .mobile-theme-control {
+    position: relative !important;
+    z-index: 10005 !important;
+    overflow: visible !important;
+  }
+
+  .nav#siteNav .mobile-theme-menu {
+    z-index: 10006 !important;
+    max-height: calc(100dvh - 82px) !important;
+    overflow-y: auto !important;
+  }
+
+  body[data-theme="light"] .nav#siteNav .nav-panel {
+    background: rgb(255 255 255 / 0.985) !important;
+  }
+}
+
+/* Use a single video element on the back face. A static blurred poster layer
+   provides the depth effect without a second video that can fail independently. */
+.photo-card-back::before {
+  content: "";
+  position: absolute;
+  inset: -8%;
+  z-index: 0;
+  background: url("assets/profile.jpeg") center / cover no-repeat;
+  filter: blur(24px) saturate(1.12);
+  transform: scale(1.08);
+  opacity: .9;
+  pointer-events: none;
+}
+.photo-card-back .profile-video {
+  z-index: 1;
+}
+.photo-card-back::after {
+  z-index: 2;
+}
+.photo-depth { touch-action: manipulation; }
+
+/* FINAL MENU GLASS MATCH — mobile Menu dropdown uses the same transparent/glass treatment as Theme. */
+@media (max-width: 600px) {
+  .nav#siteNav .nav-panel {
+    width: min(300px, calc(100vw - 24px)) !important;
+    left: auto !important;
+    right: 5vw !important;
+    padding: 12px !important;
+    background: var(--theme-surface) !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 24px 70px var(--theme-shadow) !important;
+    backdrop-filter: blur(20px) saturate(125%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(125%) !important;
+  }
+
+  .nav#siteNav .nav-panel .nav-links {
+    gap: 3px !important;
+  }
+
+  .nav#siteNav .nav-panel .nav-links a {
+    min-height: 44px !important;
+    padding: 11px 12px !important;
+    border: 1px solid transparent !important;
+    border-radius: 14px !important;
+    background: transparent !important;
+    color: var(--theme-text-strong) !important;
+    font-size: .78rem !important;
+    letter-spacing: .12em !important;
+    transition: background .2s ease, border-color .2s ease, transform .2s ease, color .2s ease !important;
+  }
+
+  .nav#siteNav .nav-panel .nav-links a:hover,
+  .nav#siteNav .nav-panel .nav-links a:focus-visible,
+  .nav#siteNav .nav-panel .nav-links a.is-active {
+    background: rgba(255,255,255,.08) !important;
+    border-color: var(--line) !important;
+    color: var(--theme-text-strong) !important;
+    outline: none !important;
+  }
+
+  .nav#siteNav .nav-panel .nav-links a:active {
+    transform: translateY(1px) !important;
+  }
+
+  .nav#siteNav .nav-panel .nav-resume {
+    margin: 3px 0 0 !important;
+    padding: 10px 12px !important;
+    border-radius: 14px !important;
+    background: transparent !important;
+  }
+}
