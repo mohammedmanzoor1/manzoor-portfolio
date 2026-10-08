@@ -4922,4 +4922,45 @@ body[data-theme="light"] .hero-photo-wrap .orbit-two {
   z-index: 4;
   pointer-events: none;
 }
-.photo-face-back .photo-tag { display: none !important; }
+/* The video face has its own role badge; do not hide that badge with the front-face rule. */
+.photo-face-front .photo-tag { display: inline-flex !important; }
+
+
+/* FINAL VIDEO ROLE BADGE — keep the Data Analyst title visible while the profile video plays. */
+.photo-card-back .photo-tag-video {
+  position: absolute;
+  z-index: 6 !important;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 24px;
+  border-radius: 999px;
+  background: rgba(7, 12, 20, .78);
+  border: 1px solid rgba(255,255,255,.14);
+  color: var(--theme-text-strong, #fff);
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 12px 30px rgba(0,0,0,.32);
+  backdrop-filter: blur(12px) saturate(125%);
+  -webkit-backdrop-filter: blur(12px) saturate(125%);
+}
+
+@media (max-width: 600px) {
+  .photo-card-back .photo-tag-video {
+    bottom: 18px;
+    min-height: 42px;
+    padding: 0 18px;
+    font-size: .68rem;
+    letter-spacing: .13em;
+  }
+}
