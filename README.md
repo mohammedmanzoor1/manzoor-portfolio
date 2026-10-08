@@ -1,70 +1,67 @@
 # Mohammed Manzoor Ul Hassan — Portfolio
 
-A cinematic/futuristic static portfolio starter built with HTML, CSS and JavaScript.
+Personal portfolio website showcasing my work, projects, skills, learning journey, and interests in Data Analytics, AI, and Generative AI.
 
-## Included
-- Hero with profile photo
-- Visitor-name greeting dialog
-- Animated cherry blossoms
-- Parallax blossom-tree background
-- Scroll-based background scene changes
-- About / Education
-- Skills ecosystem
-- Current AI Specialist learning section
-- Advanced Data Analysis certificate
-- Trainer/mentor photo
-- Five project cards with GitHub + live links
-- Contact section
-- Responsive layout
-- Reduced dependency footprint
+## About
 
-## Publishing
-Contact details and social links are already configured in `index.html`.
+I’m a Data Analyst focused on turning data into meaningful insights and practical business solutions.
 
-## Projects
-1. Healthcare Re-Admission Analysis
-2. Bank Loan Default Risk Analysis
-3. Online Retail Sales & Customer Insights
-4. Google Play Store Analytics
-5. Retail Sales & Profit Performance
+My work includes hands-on projects using:
 
-## Architecture
-The portfolio intentionally remains a lightweight static site using HTML, CSS, and vanilla JavaScript. No React, Vite, Next.js, router, package manager, or build step is required.
+- SQL Server
+- Python
+- Excel
+- Tableau
+- Power BI
+- DAX
+- Data Visualization
 
-The five project case studies are static HTML pages under `projects/`.
-## Phase 3 additions
+I am also expanding my skills in AI & Generative AI, including:
 
-- Premium interactive project cards with deterministic project-to-image mapping.
-- Project jump navigation for all five projects.
-- Dedicated static case-study pages under `projects/`.
-- Google Play Store four-screenshot dashboard gallery.
-- Responsive project actions for Live Dashboard, GitHub, and Case Study.
-- Reduced-motion and keyboard/focus-friendly interaction preserved.
+- Prompt Engineering
+- LLM APIs
+- RAG
+- LangChain
+- AI Agents
+- MCP
+- Transformers & LLMs
 
+## Featured Projects
 
-## Phase 4 final polish
+### Healthcare Re-Admission Analysis
+Healthcare analytics project focused on understanding 30-day hospital readmission patterns.
 
-The portfolio remains a lightweight static HTML/CSS/JS site and now includes:
-- Open Graph / Twitter metadata and structured Person data
-- favicon and web manifest
-- improved contact UX with copy-email action
-- persistent back-to-top control
-- footer social links
-- print-friendly styling
-- graceful project-image error handling
-- no framework or build step required
+### Bank Loan Default Risk Analysis
+Risk analytics project analyzing loan records and default-risk patterns.
 
-### Publish
+### Online Retail Sales & Customer Insights
+Retail analytics project focused on customer behavior, revenue, and transaction insights.
 
-This site can be published directly to GitHub Pages, Netlify, Vercel, or any static hosting provider by uploading the `manzoor-portfolio` folder.
+### Google Play Store Analytics
+Power BI analytics project covering app performance, installs, pricing, categories, reviews, and sentiment.
 
-### Theme system
-The portfolio includes five visual atmospheres: Midnight Data (default), Aurora AI, Emerald Analytics, Cosmic Violet, and Light Mode. Theme choice is stored only for the current browser session.
+### Retail Sales & Profit Performance Analytics
+SQL Server + Tableau project analyzing sales, profit, customers, categories, and discount impact.
 
 ## Vibe Coding
-The Interests section now includes a dedicated Vibe Coding hub with three browser-based experiments:
+
+The portfolio also includes browser-based coding experiments and games:
+
 - Agent Crew — Human-in-the-Loop workflow simulation
-- Bug Smasher — Server Defense arcade game
+- Bug Smasher — Server Defense
 - Code Empire — Idle Dev Career Tycoon
 
-The demos are self-contained static HTML files. Agent Crew uses Three.js from cdnjs for its optional 3D view; the games keep temporary progress in session storage only.
+Agent Crew is a simulation/demo for learning and experimentation, not a production multi-agent AI system.
+
+## Technologies
+
+HTML • CSS • JavaScript • SQL Server • Python • Tableau • Power BI • Excel • DAX • AI & GenAI
+
+## Portfolio
+
+Live portfolio: Coming soon
+
+## Contact
+
+LinkedIn: Mohammed Manzoor Ul Hassan  
+GitHub: mohammedmanzoor1
