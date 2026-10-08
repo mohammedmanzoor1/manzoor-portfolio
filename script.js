@@ -798,10 +798,13 @@ if (profileDepth && profileCard && profileVideo) {
 
   function setFlipped(flipped) {
     profileDepth.classList.toggle('is-flipped', flipped);
+    profileDepth.classList.add('is-flipping');
     profileDepth.setAttribute('aria-pressed', String(flipped));
     profileDepth.setAttribute('aria-label', flipped
       ? 'Profile video of Mohammed Manzoor Ul Hassan. Tap or click to return to the profile photo.'
       : 'Profile photo of Mohammed Manzoor Ul Hassan, Data Analyst. Tap or click to play the profile video.');
+    window.clearTimeout(setFlipped._timer);
+    setFlipped._timer = window.setTimeout(() => profileDepth.classList.remove('is-flipping'), 700);
   }
 
   function stopProfileVideo({returnToFront = true} = {}) {
@@ -817,8 +820,12 @@ if (profileDepth && profileCard && profileVideo) {
   function wireProfileVideo() {
     if (videoWired) return true;
     if (!videoSrc) return false;
-    profileVideo.src = videoSrc;
-    profileVideo.load();
+    // The source is already present in the markup. Avoid loading the media
+    // during the click/flip gesture, which can compete with the 3D transition.
+    if (!profileVideo.currentSrc) {
+      profileVideo.src = videoSrc;
+      profileVideo.load();
+    }
     videoWired = true;
     return true;
   }
@@ -872,7 +879,7 @@ if (profileDepth && profileCard && profileVideo) {
 
   if (!reduceMotion && window.matchMedia('(pointer: fine)').matches) {
     profileDepth.addEventListener('pointermove', (e) => {
-      if (e.pointerType !== 'mouse' || profileDepth.classList.contains('is-flipped')) return;
+      if (e.pointerType !== 'mouse' || profileDepth.classList.contains('is-flipped') || profileDepth.classList.contains('is-flipping')) return;
       const r = profileDepth.getBoundingClientRect();
       const x = (e.clientX - r.left) / r.width - 0.5;
       const y = (e.clientY - r.top) / r.height - 0.5;

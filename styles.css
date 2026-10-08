@@ -455,9 +455,10 @@ body.is-ready .scroll-cue { animation-delay: 0.7s; }
   position: relative;
   width: min(380px, 72vw);
   transform-style: preserve-3d;
-  transition: transform 0.35s var(--ease);
+  transition: none;
   will-change: transform;
   perspective: 1200px;
+  contain: layout paint style;
 }
 
 .photo-flip {
@@ -465,12 +466,18 @@ body.is-ready .scroll-cue { animation-delay: 0.7s; }
   width: 100%;
   aspect-ratio: 4 / 5;
   transform-style: preserve-3d;
-  transition: transform 0.78s cubic-bezier(.2,.72,.2,1);
+  transition: transform 0.66s cubic-bezier(.16,.82,.22,1);
   will-change: transform;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 .photo-depth.is-flipped .photo-flip {
-  transform: rotateY(180deg);
+  transform: translateZ(0) rotateY(180deg);
+}
+
+.photo-depth.is-flipping {
+  pointer-events: none;
 }
 
 .photo-face {
@@ -479,6 +486,7 @@ body.is-ready .scroll-cue { animation-delay: 0.7s; }
   transform-style: preserve-3d;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 .photo-face-front {
