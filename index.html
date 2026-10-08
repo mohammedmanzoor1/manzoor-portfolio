@@ -46,10 +46,24 @@
 
   <header class="nav" id="siteNav">
     <a class="brand" href="#home">MMUH</a>
-    <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="primaryNav" aria-label="Open menu">
-      <span class="nav-toggle-bar" aria-hidden="true"></span>
-      <span class="nav-toggle-bar" aria-hidden="true"></span>
-    </button>
+    <div class="mobile-nav-actions" aria-label="Mobile controls">
+      <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="primaryNav" aria-label="Open menu">
+        <span class="nav-toggle-label">Menu</span>
+      </button>
+      <div class="mobile-theme-control">
+        <button class="theme-trigger mobile-theme-trigger" id="mobileThemeTrigger" type="button" aria-expanded="false" aria-controls="mobileThemeMenu" aria-haspopup="true">
+          <span class="theme-trigger-icon" aria-hidden="true">◐</span><span>Theme</span>
+        </button>
+        <div class="theme-menu mobile-theme-menu" id="mobileThemeMenu" role="menu" aria-label="Choose website theme" hidden>
+          <p class="theme-menu-title">Choose atmosphere</p>
+          <button type="button" class="theme-option is-selected" data-theme-choice="midnight" role="menuitemradio" aria-checked="true"><span class="theme-swatch midnight"></span><span><b>Midnight Data</b><small>Default · cinematic</small></span></button>
+          <button type="button" class="theme-option" data-theme-choice="aurora" role="menuitemradio" aria-checked="false"><span class="theme-swatch aurora"></span><span><b>Aurora AI</b><small>Bright blue · cyan · violet</small></span></button>
+          <button type="button" class="theme-option" data-theme-choice="emerald" role="menuitemradio" aria-checked="false"><span class="theme-swatch emerald"></span><span><b>Emerald Analytics</b><small>Fresh green · teal</small></span></button>
+          <button type="button" class="theme-option" data-theme-choice="cosmic" role="menuitemradio" aria-checked="false"><span class="theme-swatch cosmic"></span><span><b>Cosmic Violet</b><small>Luminous violet · blue</small></span></button>
+          <button type="button" class="theme-option" data-theme-choice="light" role="menuitemradio" aria-checked="false"><span class="theme-swatch light"></span><span><b>Light Mode</b><small>Blue sky · white clouds</small></span></button>
+        </div>
+      </div>
+    </div>
     <div class="nav-panel" id="primaryNav">
       <nav class="nav-links" aria-label="Primary">
         <a href="#about" data-nav="about">About</a>
@@ -307,7 +321,7 @@
           <a class="btn ghost icon-btn" href="https://github.com/mohammedmanzoor1" target="_blank" rel="noopener noreferrer" aria-label="GitHub profile" title="GitHub">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5a9.5 9.5 0 0 0-3 18.51c.47.09.65-.2.65-.45v-1.76c-2.65.58-3.21-1.13-3.21-1.13-.43-1.1-1.05-1.39-1.05-1.39-.86-.59.07-.58.07-.58.95.07 1.45.98 1.45.98.85 1.45 2.23 1.03 2.77.79.09-.62.33-1.03.61-1.27-2.12-.24-4.35-1.06-4.35-4.73 0-1.05.37-1.91.98-2.58-.1-.24-.43-1.22.09-2.54 0 0 .8-.26 2.62.98a9.1 9.1 0 0 1 4.77 0c1.82-1.24 2.62-.98 2.62-.98.52 1.32.19 2.3.09 2.54.61.67.98 1.53.98 2.58 0 3.68-2.24 4.49-4.36 4.72.34.29.64.84.64 1.7v2.52c0 .25.17.54.65.45A9.5 9.5 0 0 0 12 2.5Z"/></svg>
           </a>
-          <a class="btn ghost icon-btn" href="https://www.linkedin.com/in/mohammedmanzoorulhassan-data-ai/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn profile" title="LinkedIn">
+          <a class="btn ghost icon-btn" href="https://www.linkedin.com/in/mohammedmanzoorulhassan-data-ai/-ai/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn profile" title="LinkedIn">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.2 7.1A1.8 1.8 0 1 0 5.2 3.5a1.8 1.8 0 0 0 0 3.6ZM3.7 9h3v11.5h-3V9Zm5 0h2.9v1.57h.04c.4-.75 1.38-1.93 3.5-1.93 3.74 0 4.43 2.46 4.43 5.66v6.2h-3v-5.5c0-1.31-.03-3-1.83-3s-2.11 1.43-2.11 2.9v5.6h-3V9Z"/></svg>
           </a>
         </div>
@@ -348,7 +362,7 @@
     "email":"mailto:mohammedulhassan.official@gmail.com",
     "sameAs":[
       "https://github.com/mohammedmanzoor1",
-      "https://www.linkedin.com/in/mohammedmanzoorulhassan-data-ai/"
+      "https://www.linkedin.com/in/mohammedmanzoorulhassan-data-ai/-ai/"
     ],
     "alumniOf":{
       "@type":"CollegeOrUniversity",

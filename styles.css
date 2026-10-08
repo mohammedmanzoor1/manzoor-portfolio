@@ -4404,3 +4404,139 @@ body[data-theme="light"] .hero-photo-wrap .orbit-two {
     box-sizing: border-box;
   }
 }
+
+/* ================================================================
+   PHONE HEADER — two compact dropdown controls
+   Main portfolio only. Desktop/tablet layout remains unchanged.
+   ================================================================ */
+.mobile-nav-actions { display: none; }
+
+@media (max-width: 600px) {
+  /* Keep the brand in the header and put Menu + Theme beside it. */
+  .nav {
+    min-height: 64px;
+    padding: 8px 5vw;
+    align-items: center;
+  }
+
+  .brand { flex: 0 0 auto; }
+
+  .mobile-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    position: relative;
+    z-index: 220;
+  }
+
+  .mobile-nav-actions .nav-toggle,
+  .mobile-theme-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: auto;
+    min-width: 76px;
+    height: 40px;
+    padding: 0 11px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--theme-surface);
+    color: var(--theme-text-strong);
+    backdrop-filter: blur(14px);
+    font: 700 .64rem/1 Inter,system-ui,sans-serif;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .mobile-nav-actions .nav-toggle-label { display: inline; }
+  .mobile-nav-actions .nav-toggle-bar { display: none; }
+
+  .mobile-theme-control { position: relative; }
+  .mobile-theme-trigger { min-width: 82px; }
+  .mobile-theme-trigger[aria-expanded="true"],
+  .mobile-nav-actions .nav-toggle[aria-expanded="true"] {
+    border-color: var(--accent2);
+    background: var(--theme-surface-strong);
+  }
+
+  /* Menu dropdown: directly below the two header controls, never over the brand. */
+  .nav-panel {
+    position: fixed;
+    top: 64px;
+    left: 5vw;
+    right: 5vw;
+    width: auto;
+    max-height: min(70vh, 520px);
+    padding: 10px 16px 16px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    background: var(--theme-surface-strong);
+    border: 1px solid var(--line);
+    border-radius: 0 0 18px 18px;
+    box-shadow: 0 24px 60px var(--theme-shadow);
+    backdrop-filter: blur(20px);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    pointer-events: none;
+    overflow-y: auto;
+    z-index: 210;
+  }
+
+  .nav.is-open .nav-panel {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .nav-panel .nav-links {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .nav-panel .nav-links a {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 13px 4px;
+    font-size: .82rem;
+    letter-spacing: .11em;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+
+  .nav-panel .nav-resume {
+    align-self: flex-start;
+    margin-top: 2px;
+  }
+
+  /* The desktop theme control stays in the panel; hide it on phones because
+     the dedicated Theme control is already in the header. */
+  .nav-panel > .theme-control { display: none; }
+
+  /* Phone-only Theme dropdown, anchored to the Theme button. */
+  .mobile-theme-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: min(300px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
+    box-sizing: border-box;
+    padding: 9px;
+    border-radius: 16px;
+    background: var(--theme-surface-strong);
+    border: 1px solid var(--line);
+    box-shadow: 0 24px 60px var(--theme-shadow);
+    backdrop-filter: blur(20px);
+    z-index: 260;
+  }
+
+  .mobile-theme-menu .theme-option { min-height: 46px; }
+  .mobile-theme-menu .theme-menu-title { margin: 4px 9px 8px; }
+}

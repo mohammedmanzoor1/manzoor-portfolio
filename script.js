@@ -23,6 +23,8 @@ const THEME_META_COLORS = {
 };
 const themeTrigger = document.getElementById('themeTrigger');
 const themeMenu = document.getElementById('themeMenu');
+const mobileThemeTrigger = document.getElementById('mobileThemeTrigger');
+const mobileThemeMenu = document.getElementById('mobileThemeMenu');
 const themeOptions = [...document.querySelectorAll('[data-theme-choice]')];
 const VALID_THEMES = new Set(['midnight', 'aurora', 'emerald', 'cosmic', 'light']);
 
@@ -42,54 +44,67 @@ function applyTheme(theme, { persist = true } = {}) {
   }
 }
 
-function closeThemeMenu() {
-  if (!themeMenu || !themeTrigger) return;
-  themeMenu.hidden = true;
-  themeTrigger.setAttribute('aria-expanded', 'false');
+function closeThemeMenu(menu = themeMenu, trigger = themeTrigger) {
+  if (!menu || !trigger) return;
+  menu.hidden = true;
+  trigger.setAttribute('aria-expanded', 'false');
 }
 
-function openThemeMenu() {
-  if (!themeMenu || !themeTrigger) return;
-  themeMenu.hidden = false;
-  themeTrigger.setAttribute('aria-expanded', 'true');
+function openThemeMenu(menu, trigger) {
+  if (!menu || !trigger) return;
+  if (themeMenu && themeMenu !== menu) closeThemeMenu(themeMenu, themeTrigger);
+  if (mobileThemeMenu && mobileThemeMenu !== menu) closeThemeMenu(mobileThemeMenu, mobileThemeTrigger);
+  menu.hidden = false;
+  trigger.setAttribute('aria-expanded', 'true');
 }
 
-if (themeTrigger && themeMenu) {
-  let savedTheme = 'midnight';
-  try {
-    const sessionTheme = sessionStorage.getItem('portfolioTheme');
-    if (VALID_THEMES.has(sessionTheme)) savedTheme = sessionTheme;
-  } catch (_) { /* use default */ }
-  applyTheme(savedTheme, { persist: false });
+let savedTheme = 'midnight';
+try {
+  const sessionTheme = sessionStorage.getItem('portfolioTheme');
+  if (VALID_THEMES.has(sessionTheme)) savedTheme = sessionTheme;
+} catch (_) { /* use default */ }
+applyTheme(savedTheme, { persist: false });
 
-  themeTrigger.addEventListener('click', () => {
-    if (themeMenu.hidden) openThemeMenu();
-    else closeThemeMenu();
+[[themeTrigger, themeMenu], [mobileThemeTrigger, mobileThemeMenu]].forEach(([trigger, menu]) => {
+  if (!trigger || !menu) return;
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (menu.hidden) openThemeMenu(menu, trigger);
+    else closeThemeMenu(menu, trigger);
   });
+});
 
-  themeOptions.forEach((option) => {
-    option.addEventListener('click', () => {
+themeOptions.forEach((option) => {
+  option.addEventListener('click', () => {
+    applyTheme(option.dataset.themeChoice);
+    closeThemeMenu(themeMenu, themeTrigger);
+    closeThemeMenu(mobileThemeMenu, mobileThemeTrigger);
+  });
+  option.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
       applyTheme(option.dataset.themeChoice);
-      closeThemeMenu();
-    });
-    option.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        applyTheme(option.dataset.themeChoice);
-        closeThemeMenu();
-      }
-      if (e.key === 'Escape') closeThemeMenu();
-    });
+      closeThemeMenu(themeMenu, themeTrigger);
+      closeThemeMenu(mobileThemeMenu, mobileThemeTrigger);
+    }
+    if (e.key === 'Escape') {
+      closeThemeMenu(themeMenu, themeTrigger);
+      closeThemeMenu(mobileThemeMenu, mobileThemeTrigger);
+    }
   });
+});
 
-  document.addEventListener('click', (e) => {
-    if (!themeMenu.hidden && !themeMenu.contains(e.target) && !themeTrigger.contains(e.target)) closeThemeMenu();
-  });
+document.addEventListener('click', (e) => {
+  if (themeMenu && !themeMenu.hidden && !themeMenu.contains(e.target) && !themeTrigger?.contains(e.target)) closeThemeMenu(themeMenu, themeTrigger);
+  if (mobileThemeMenu && !mobileThemeMenu.hidden && !mobileThemeMenu.contains(e.target) && !mobileThemeTrigger?.contains(e.target)) closeThemeMenu(mobileThemeMenu, mobileThemeTrigger);
+});
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeThemeMenu();
-  });
-}
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeThemeMenu(themeMenu, themeTrigger);
+    closeThemeMenu(mobileThemeMenu, mobileThemeTrigger);
+  }
+});
 
 const PROJECTS = Object.freeze([
   Object.freeze({
