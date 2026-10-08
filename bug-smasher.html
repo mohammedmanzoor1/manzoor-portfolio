@@ -31,8 +31,6 @@ h1{color:var(--g);margin:0;font-size:1.4rem}.rank{color:var(--gold);font-size:.8
 .t{color:var(--g);font-size:1rem;border-bottom:1px solid var(--line);padding-bottom:4px;margin:16px 0 8px}
 .ach{display:flex;flex-wrap:wrap;gap:6px}.ach span{font-size:.7rem;padding:4px 8px;border:1px solid var(--line);border-radius:12px;color:var(--mut);opacity:.5}.ach span.on{color:var(--gold);border-color:var(--gold);opacity:1}
 .th{padding:8px 12px;border-radius:16px;border:1px solid var(--line);background:#21262d;color:var(--fg);font:.75rem 'Courier New',monospace;cursor:pointer;min-height:38px}.th.on{border-color:var(--g);color:var(--g)}.th.lock{opacity:.4;cursor:not-allowed}
-#resume{display:none;margin-top:16px;border:1px dashed var(--g);background:#4af62612;border-radius:8px;padding:14px;font-size:.85rem;line-height:1.5}
-#resume h2{margin:0 0 6px;color:var(--g);font-size:1.1rem}#rv div{margin:2px 0}
 .tag{display:inline-block;background:#21262d;border:1px solid var(--line);border-radius:4px;padding:1px 6px;margin:2px;font-size:.75rem}
 .fl{position:fixed;pointer-events:none;font-weight:bold;color:var(--g);animation:up .8s ease-out forwards;z-index:9}
 @keyframes up{to{transform:translateY(-55px);opacity:0}}
@@ -54,7 +52,6 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 <div id="msg"></div>
 <div class="ach" id="lv" style="justify-content:center;margin:8px 0"></div><button class="act ok" id="start">Start Sprint</button>
 <div class="sub" id="goal" style="text-align:center;margin-top:8px"></div>
-<div id="resume"><h2>🚀 v1.0 SHIPPED — RESUME UNLOCKED</h2><div id="rv"></div><button class="act ok" id="rcp" style="margin-top:10px">📋 Copy resume text</button></div>
 <div class="t">🐞 BUG FIELD GUIDE</div>
 <div class="sub" style="line-height:1.6">🐛 Bug: quick, +10 · 👻 Heisenbug: hops away · 🦠 Memory Leak: hurts a lot if missed · 👾 Zero-day: rare, +100 · 🎁 Feature: DON'T smash · ☕ Coffee: slows time · 🛡️ Firewall: blocks one miss · 🧹 Refactor: smashes everything on screen · 🐉 Boss (every 4th sprint): hit it many times</div>
 <div class="t">🏆 ACHIEVEMENTS</div><div class="ach" id="ach"></div>
@@ -65,29 +62,7 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 </div>
 <div id="toast"></div>
 <script>
-/* ==================================================================
-   CREATOR DETAILS — THIS IS THE ONLY PART THAT NEEDS EDITING.
-   Website assistant: replace the values below with the site owner's
-   real details, keep the quotes and commas, and change nothing else.
-   These details are fixed in the code. Visitors cannot edit or save
-   them, and the game stores nothing about visitors.
-   ================================================================== */
-const RESUME={
- name:'Mohammed Manzoor Ul Hassan',
- title:'Data Analyst | AI & GenAI Learner',
- summary:'Data Analyst focused on turning data into meaningful insights and practical business solutions, while expanding into AI and Generative AI.',
- email:'mohammedulhassan.official@gmail.com',
- links:[
-  {label:'GitHub',url:'https://github.com/mohammedmanzoor1'},
-  {label:'LinkedIn',url:'https://www.linkedin.com/in/mohammedmanzoorulhassan-data-ai/'}
- ],
- skills:['SQL Server','Python','Power BI','Tableau','Excel','DAX','AI & GenAI'],
- projects:[
-  'Bug Smasher: Server Defense — mobile-first arcade game',
-  'Code Empire — idle dev career tycoon'
- ]
-};
-/* ================= END OF CREATOR DETAILS ================= */
+
 const $=id=>document.getElementById(id);
 const fmt=n=>Math.floor(n).toLocaleString();
 const TY={
@@ -140,7 +115,7 @@ function hit(i,x,y){if(!G.run)return;const h=H[i];if(!h)return;const ty=TY[h.k];
  else if(ty.pow){pw(h.k,i)}
  else{G.combo++;const m=Math.min(5,1+Math.floor(G.combo/5)),p=Math.round(ty.pts*m*[1,1.5,2][S.lv]);G.score+=p;G.smash++;G.cnt++;if(h.k==='zero')G.z++;G.mc=Math.max(G.mc,m);G.up=Math.min(100,G.up+(h.k==='leak'?6:1));fx(i,'+'+p);beep(320+m*60,.05);try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}
   const ns=sprint();if(ns>G.spr){G.spr=ns;toast('🚀 Sprint '+ns+' — bugs get faster!')}
-  if(G.cnt>=GOAL&&!S.u){S.u=1;toast('🚀 v1.0 shipped — resume unlocked!');ui2()}}
+  if(G.cnt>=GOAL&&!S.u){S.u=1;toast('🚀 v1.0 shipped — server defended!');ui2()}}
  H[i]=null;render()}
 function pw(k,i){if(k==='cof'){G.slow=G.T+8000;fx(i,'⏳ Slow-mo','#5ec8ff')}else if(k==='shield'){G.shield=1;fx(i,'🛡️ Shield on','#5ec8ff')}else{H.forEach((h,j)=>{if(h&&j!==i){const t=TY[h.k];if(!t.bad&&!t.pow&&!t.boss){G.score+=t.pts;G.smash++;G.cnt++;H[j]=null;fx(j,'+'+t.pts)}}});fx(i,'🧹 Refactor!','#5ec8ff')}beep(700,.1)}
 function tick(){const n=Date.now(),dt=Math.min(n-tick.l,100);tick.l=n;if(!G.run)return;G.T+=dt;
@@ -170,22 +145,10 @@ function ui2(){
  TH.forEach((t,i)=>{const b=$('th'+i),lk=S.best<t[3];b.classList.toggle('lock',lk);b.classList.toggle('on',S.th===i);b.textContent=lk?'🔒 '+t[0]+' ('+t[3]+' pts)':t[0]});
  $('snd').textContent=S.snd?'🔊 Sound: on':'🔇 Sound: off';
  $('stat').textContent='This session: '+S.runs+' runs · '+fmt(S.tot)+' bugs smashed · best combo x'+S.mc;lvUI();
- $('goal').textContent=S.u?'v1.0 shipped — resume unlocked below!':'Goal: smash '+GOAL+' bugs in one run (any level) to ship v1.0 and unlock my resume';
- $('resume').style.display=S.u?'block':'none'}
+ $('goal').textContent=S.u?'v1.0 shipped — server defense complete!':'Goal: smash '+GOAL+' bugs in one run (any level) to ship v1.0';
+}
 function save(){try{sessionStorage.setItem('bs2',JSON.stringify(S))}catch(e){}}
 function E(tag,txt,parent){const e=document.createElement(tag);e.textContent=txt;parent.appendChild(e);return e}
-function renderResume(){const R=RESUME,v=$('rv');v.textContent='';
- E('b',R.name,E('div','',v));E('div',R.title,v);if(R.summary)E('div',R.summary,v).className='sub';
- const c=E('div','',v);c.className='sub';
- const A=(t,h)=>{const a=E('a',t,c);a.href=h;a.target='_blank';a.rel='noopener noreferrer';a.style.color='var(--g)';c.appendChild(document.createTextNode(' '))};
- if(R.email)A(R.email,'mailto:'+R.email);
- (R.links||[]).forEach(l=>{if(/^https?:\/\//i.test(l.url))A(l.label,l.url)});
- E('b','Skills',E('div','',v));const k=E('div','',v);(R.skills||[]).forEach(x=>{E('span',x,k).className='tag'});
- E('b','Projects',E('div','',v));(R.projects||[]).forEach(x=>E('div','• '+x,v))}
-function resumeText(){const R=RESUME,N='\n',c=[R.email].concat((R.links||[]).map(l=>l.url)).filter(Boolean).join(' | ');
- return R.name+' — '+R.title+N+c+(R.summary?N+N+R.summary:'')+N+N+'Skills: '+(R.skills||[]).join(', ')+N+N+'Projects:'+N+(R.projects||[]).map(x=>'- '+x).join(N)}
-function copy(t,ok){try{navigator.clipboard.writeText(t).then(()=>toast(ok),()=>toast('Copy not allowed here'))}catch(e){toast('Copy not allowed here')}}
-$('rcp').addEventListener('click',()=>copy(resumeText(),'📋 Resume copied'));
 $('start').addEventListener('click',start);
 $('snd').addEventListener('click',()=>{S.snd=S.snd?0:1;beep(600,.1);ui2()});
 let rArm=0;
@@ -196,7 +159,7 @@ $('rst').addEventListener('click',()=>{
 addEventListener('keydown',e=>{if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;if(/^[1-9]$/.test(e.key)&&G.run)hit(+e.key-1,0,0)});
 addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
 setInterval(tick,50);
-applyTh();renderResume();ui2();render();
+applyTh();ui2();render();
 </script>
 </body>
 </html>
