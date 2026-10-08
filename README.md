@@ -59,7 +59,7 @@ HTML • CSS • JavaScript • SQL Server • Python • Tableau • Power BI �
 
 ## Portfolio
 
-Live portfolio: Coming soon
+Live portfolio: mmanzoor.vercel.app
 
 ## Contact
 
