@@ -5126,3 +5126,56 @@ body[data-theme="cosmic"] .petal {
   opacity: .96;
   filter: saturate(1.34) contrast(1.06);
 }
+
+/* DEFINITIVE MOBILE LIGHT-MODE MENU VISIBILITY FIX
+   Keep the main mobile navigation panel visible when opened, with a solid
+   light surface and dark text. Explicit properties override legacy rules. */
+@media (max-width: 600px) {
+  body[data-theme="light"] #siteNav.is-open #primaryNav {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100vh - 78px) !important;
+    max-height: calc(100dvh - 78px) !important;
+    overflow-y: auto !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #10213a !important;
+    border: 1px solid rgba(16, 33, 58, .22) !important;
+    border-top: 0 !important;
+    box-shadow: 0 24px 60px rgba(16, 33, 58, .22) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+    pointer-events: auto !important;
+  }
+
+  body[data-theme="light"] #siteNav.is-open #primaryNav .nav-links,
+  body[data-theme="light"] #siteNav.is-open #primaryNav .nav-links a,
+  body[data-theme="light"] #siteNav.is-open #primaryNav .nav-resume,
+  body[data-theme="light"] #siteNav.is-open #primaryNav .theme-control,
+  body[data-theme="light"] #siteNav.is-open #primaryNav .theme-trigger {
+    color: #10213a !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  body[data-theme="light"] #siteNav.is-open #primaryNav .nav-links a {
+    display: flex !important;
+    min-height: 46px !important;
+    background-color: transparent !important;
+    border-bottom: 1px solid rgba(16, 33, 58, .14) !important;
+    text-shadow: none !important;
+  }
+
+  body[data-theme="light"] #siteNav.is-open #primaryNav .nav-links a:hover,
+  body[data-theme="light"] #siteNav.is-open #primaryNav .nav-links a:focus-visible,
+  body[data-theme="light"] #siteNav.is-open #primaryNav .nav-links a.is-active {
+    background: #edf4ff !important;
+    color: #10213a !important;
+    border-color: rgba(29, 103, 204, .24) !important;
+  }
+}
