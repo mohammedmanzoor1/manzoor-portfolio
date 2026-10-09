@@ -4924,6 +4924,34 @@ body[data-theme="light"] .hero-photo-wrap .orbit-two {
 }
 
 
+/* CROSS-DEVICE PROFILE CORNER FIX — enforce rounded clipping on iOS/Android browsers
+   where transformed 3D faces can otherwise paint square image/video corners. */
+.photo-card,
+.photo-card-front,
+.photo-card-back {
+  border-radius: 28px !important;
+  overflow: hidden !important;
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  clip-path: inset(0 round 28px);
+}
+.photo-card-front img,
+.photo-card-back .profile-video {
+  border-radius: 27px !important;
+  clip-path: inset(0 round 27px);
+}
+.photo-card-back::before,
+.photo-card-back::after {
+  border-radius: inherit;
+  overflow: hidden;
+}
+@media (max-width: 600px) {
+  .photo-card,
+  .photo-card-front,
+  .photo-card-back { border-radius: 28px !important; clip-path: inset(0 round 28px); }
+  .photo-card-front img,
+  .photo-card-back .profile-video { border-radius: 27px !important; clip-path: inset(0 round 27px); }
+}
+
 /* FINAL PROFILE TAG FLIP FIX — the role badge belongs to the photo face, not the outer flip wrapper. */
 .photo-card-front .photo-tag {
   position: absolute;
@@ -4938,9 +4966,9 @@ body[data-theme="light"] .hero-photo-wrap .orbit-two {
 .photo-card-back .photo-tag-video {
   position: absolute;
   z-index: 6 !important;
-  left: 50%;
-  bottom: 24px;
-  transform: translateX(-50%);
+  left: 16px;
+  bottom: 16px;
+  transform: none;
   pointer-events: none;
   display: inline-flex !important;
   visibility: visible !important;
@@ -4965,10 +4993,136 @@ body[data-theme="light"] .hero-photo-wrap .orbit-two {
 
 @media (max-width: 600px) {
   .photo-card-back .photo-tag-video {
-    bottom: 18px;
+    left: 16px;
+    bottom: 16px;
+    transform: none;
     min-height: 42px;
     padding: 0 18px;
     font-size: .68rem;
     letter-spacing: .13em;
   }
+}
+
+/* FINAL RESPONSIVE THEME CONTRAST GUARD
+   Keep mobile Menu and Theme dropdowns readable in every supported palette.
+   This intentionally overrides older mobile-only surface rules above. */
+@media (max-width: 600px) {
+  body[data-theme="midnight"] .nav#siteNav .nav-panel,
+  body[data-theme="midnight"] .nav#siteNav .mobile-theme-menu {
+    background-color: #0b111c !important;
+    background-image: none !important;
+    color: #edf2ff !important;
+  }
+
+  body[data-theme="aurora"] .nav#siteNav .nav-panel,
+  body[data-theme="aurora"] .nav#siteNav .mobile-theme-menu {
+    background-color: #142541 !important;
+    background-image: none !important;
+    color: #f8fbff !important;
+  }
+
+  body[data-theme="emerald"] .nav#siteNav .nav-panel,
+  body[data-theme="emerald"] .nav#siteNav .mobile-theme-menu {
+    background-color: #123631 !important;
+    background-image: none !important;
+    color: #f5fffd !important;
+  }
+
+  body[data-theme="cosmic"] .nav#siteNav .nav-panel,
+  body[data-theme="cosmic"] .nav#siteNav .mobile-theme-menu {
+    background-color: #241a3b !important;
+    background-image: none !important;
+    color: #fffaff !important;
+  }
+
+  body[data-theme="light"] .nav#siteNav .nav-panel,
+  body[data-theme="light"] .nav#siteNav .mobile-theme-menu {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #10213a !important;
+    border-color: rgba(16, 33, 58, .22) !important;
+    box-shadow: 0 24px 60px rgba(16, 33, 58, .20) !important;
+  }
+
+  body[data-theme="midnight"] .nav#siteNav .nav-panel .nav-links a,
+  body[data-theme="midnight"] .nav#siteNav .nav-panel .nav-resume,
+  body[data-theme="midnight"] .nav#siteNav .mobile-theme-menu .theme-menu-title,
+  body[data-theme="midnight"] .nav#siteNav .mobile-theme-menu .theme-option,
+  body[data-theme="midnight"] .nav#siteNav .mobile-theme-menu .theme-option b,
+  body[data-theme="midnight"] .nav#siteNav .mobile-theme-menu .theme-option small,
+  body[data-theme="aurora"] .nav#siteNav .nav-panel .nav-links a,
+  body[data-theme="aurora"] .nav#siteNav .nav-panel .nav-resume,
+  body[data-theme="aurora"] .nav#siteNav .mobile-theme-menu .theme-menu-title,
+  body[data-theme="aurora"] .nav#siteNav .mobile-theme-menu .theme-option,
+  body[data-theme="aurora"] .nav#siteNav .mobile-theme-menu .theme-option b,
+  body[data-theme="aurora"] .nav#siteNav .mobile-theme-menu .theme-option small,
+  body[data-theme="emerald"] .nav#siteNav .nav-panel .nav-links a,
+  body[data-theme="emerald"] .nav#siteNav .nav-panel .nav-resume,
+  body[data-theme="emerald"] .nav#siteNav .mobile-theme-menu .theme-menu-title,
+  body[data-theme="emerald"] .nav#siteNav .mobile-theme-menu .theme-option,
+  body[data-theme="emerald"] .nav#siteNav .mobile-theme-menu .theme-option b,
+  body[data-theme="emerald"] .nav#siteNav .mobile-theme-menu .theme-option small,
+  body[data-theme="cosmic"] .nav#siteNav .nav-panel .nav-links a,
+  body[data-theme="cosmic"] .nav#siteNav .nav-panel .nav-resume,
+  body[data-theme="cosmic"] .nav#siteNav .mobile-theme-menu .theme-menu-title,
+  body[data-theme="cosmic"] .nav#siteNav .mobile-theme-menu .theme-option,
+  body[data-theme="cosmic"] .nav#siteNav .mobile-theme-menu .theme-option b,
+  body[data-theme="cosmic"] .nav#siteNav .mobile-theme-menu .theme-option small {
+    color: #f8fbff !important;
+    opacity: 1 !important;
+  }
+
+  body[data-theme="light"] .nav#siteNav .nav-panel .nav-links a,
+  body[data-theme="light"] .nav#siteNav .nav-panel .nav-resume,
+  body[data-theme="light"] .nav#siteNav .mobile-theme-menu .theme-menu-title,
+  body[data-theme="light"] .nav#siteNav .mobile-theme-menu .theme-option,
+  body[data-theme="light"] .nav#siteNav .mobile-theme-menu .theme-option b,
+  body[data-theme="light"] .nav#siteNav .mobile-theme-menu .theme-option small {
+    color: #10213a !important;
+    opacity: 1 !important;
+  }
+
+  body[data-theme="light"] .nav#siteNav .nav-panel .nav-links a {
+    border-bottom-color: rgba(16, 33, 58, .13) !important;
+  }
+
+  body[data-theme="light"] .nav#siteNav .nav-panel .nav-links a:hover,
+  body[data-theme="light"] .nav#siteNav .nav-panel .nav-links a:focus-visible,
+  body[data-theme="light"] .nav#siteNav .nav-panel .nav-links a.is-active {
+    background: rgba(29, 103, 204, .09) !important;
+    border-color: rgba(29, 103, 204, .20) !important;
+    color: #10213a !important;
+  }
+
+  .nav#siteNav .mobile-theme-menu .theme-option {
+    min-height: 46px !important;
+    width: 100% !important;
+    text-align: left !important;
+  }
+}
+
+
+/* FINAL PETAL VISIBILITY BOOST — all themes */
+.petal {
+  width: 11px;
+  height: 15px;
+  opacity: .97;
+  filter: saturate(1.34) contrast(1.06);
+  box-shadow: 0 2px 11px rgba(214, 66, 133, .32), 0 0 2px rgba(255,255,255,.55);
+}
+.petal::after {
+  width: 2.5px;
+  opacity: .72;
+}
+body[data-theme="light"] .petal {
+  opacity: .98;
+  filter: saturate(1.42) contrast(1.08);
+  box-shadow: 0 2px 12px rgba(196, 48, 112, .36), 0 0 2px rgba(255,255,255,.7);
+}
+body[data-theme="midnight"] .petal,
+body[data-theme="aurora"] .petal,
+body[data-theme="emerald"] .petal,
+body[data-theme="cosmic"] .petal {
+  opacity: .96;
+  filter: saturate(1.34) contrast(1.06);
 }
