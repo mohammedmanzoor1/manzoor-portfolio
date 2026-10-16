@@ -1,6 +1,5 @@
 const body = document.body;
 const progressBar = document.getElementById('progressBar');
-const petalLayer = document.getElementById('petalLayer');
 const modal = document.getElementById('greetingModal');
 const nameInput = document.getElementById('visitorName');
 const greetingResult = document.getElementById('greetingResult');
@@ -26,7 +25,27 @@ const themeMenu = document.getElementById('themeMenu');
 const mobileThemeTrigger = document.getElementById('mobileThemeTrigger');
 const mobileThemeMenu = document.getElementById('mobileThemeMenu');
 const themeOptions = [...document.querySelectorAll('[data-theme-choice]')];
+const autoThemeOptions = [...document.querySelectorAll('[data-theme-auto]')];
 const VALID_THEMES = new Set(['midnight', 'aurora', 'emerald', 'cosmic', 'light']);
+const AUTO_THEME_ORDER = ['midnight', 'aurora', 'emerald', 'cosmic', 'light'];
+const AUTO_THEME_INTERVAL = 30000;
+const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+let themeMode = 'auto';
+let autoThemeTimer = 0;
+let autoThemeGeneration = 0;
+
+function syncThemeOptionState(theme) {
+  const autoSelected = themeMode === 'auto';
+  autoThemeOptions.forEach((option) => {
+    option.classList.toggle('is-selected', autoSelected);
+    option.setAttribute('aria-checked', String(autoSelected));
+  });
+  themeOptions.forEach((option) => {
+    const selected = !autoSelected && option.dataset.themeChoice === theme;
+    option.classList.toggle('is-selected', selected);
+    option.setAttribute('aria-checked', String(selected));
+  });
+}
 
 function applyTheme(theme, { persist = true } = {}) {
   const next = VALID_THEMES.has(theme) ? theme : 'midnight';
@@ -34,14 +53,42 @@ function applyTheme(theme, { persist = true } = {}) {
   document.documentElement.style.colorScheme = next === 'light' ? 'light' : 'dark';
   const meta = document.getElementById('themeColorMeta');
   if (meta) meta.setAttribute('content', THEME_META_COLORS[next]);
-  themeOptions.forEach((option) => {
-    const selected = option.dataset.themeChoice === next;
-    option.classList.toggle('is-selected', selected);
-    option.setAttribute('aria-checked', String(selected));
-  });
+  syncThemeOptionState(next);
   if (persist) {
     try { sessionStorage.setItem('portfolioTheme', next); } catch (_) { /* session storage may be blocked */ }
   }
+}
+
+function stopAutoTheme() {
+  window.clearTimeout(autoThemeTimer);
+  autoThemeTimer = 0;
+  autoThemeGeneration += 1;
+}
+
+function scheduleAutoTheme(generation) {
+  if (themeMode !== 'auto' || motionPreference.matches || document.hidden) return;
+  autoThemeTimer = window.setTimeout(() => {
+    autoThemeTimer = 0;
+    if (generation !== autoThemeGeneration || themeMode !== 'auto') return;
+    const currentIndex = AUTO_THEME_ORDER.indexOf(body.dataset.theme);
+    applyTheme(AUTO_THEME_ORDER[(currentIndex + 1) % AUTO_THEME_ORDER.length]);
+    scheduleAutoTheme(generation);
+  }, AUTO_THEME_INTERVAL);
+}
+
+function selectManualTheme(theme) {
+  stopAutoTheme();
+  themeMode = 'manual';
+  try { sessionStorage.setItem('portfolioThemeMode', 'manual'); } catch (_) { /* session storage may be blocked */ }
+  applyTheme(theme);
+}
+
+function selectAutoTheme() {
+  stopAutoTheme();
+  themeMode = 'auto';
+  try { sessionStorage.setItem('portfolioThemeMode', 'auto'); } catch (_) { /* session storage may be blocked */ }
+  applyTheme(AUTO_THEME_ORDER[0]);
+  scheduleAutoTheme(autoThemeGeneration);
 }
 
 function closeThemeMenu(menu = themeMenu, trigger = themeTrigger) {
@@ -56,14 +103,277 @@ function openThemeMenu(menu, trigger) {
   if (mobileThemeMenu && mobileThemeMenu !== menu) closeThemeMenu(mobileThemeMenu, mobileThemeTrigger);
   menu.hidden = false;
   trigger.setAttribute('aria-expanded', 'true');
+  menu.querySelector('[role="menuitemradio"][aria-checked="true"]')?.focus();
 }
 
 let savedTheme = 'midnight';
 try {
   const sessionTheme = sessionStorage.getItem('portfolioTheme');
   if (VALID_THEMES.has(sessionTheme)) savedTheme = sessionTheme;
+  const savedMode = sessionStorage.getItem('portfolioThemeMode');
+  const defaultModeInitialized = sessionStorage.getItem('portfolioThemeDefaultInitialized') === 'true';
+  if (!defaultModeInitialized) {
+    themeMode = 'auto';
+    savedTheme = 'midnight';
+    sessionStorage.setItem('portfolioThemeMode', 'auto');
+    sessionStorage.setItem('portfolioTheme', 'midnight');
+    sessionStorage.setItem('portfolioThemeDefaultInitialized', 'true');
+  } else {
+    themeMode = savedMode === 'manual' ? 'manual' : 'auto';
+    if (savedMode !== 'manual' && savedMode !== 'auto') {
+      savedTheme = 'midnight';
+      sessionStorage.setItem('portfolioThemeMode', 'auto');
+    }
+  }
 } catch (_) { /* use default */ }
 applyTheme(savedTheme, { persist: false });
+if (themeMode === 'auto') scheduleAutoTheme(autoThemeGeneration);
+
+motionPreference.addEventListener('change', () => {
+  stopAutoTheme();
+  if (themeMode === 'auto') scheduleAutoTheme(autoThemeGeneration);
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    window.clearTimeout(autoThemeTimer);
+    autoThemeTimer = 0;
+  } else if (themeMode === 'auto') {
+    scheduleAutoTheme(autoThemeGeneration);
+  }
+});
+
+/* —— Theme-aware neural network background —— */
+(() => {
+  const canvas = document.getElementById('neuralNetworkCanvas');
+  if (!canvas || canvas.dataset.initialized === 'true') return;
+  const context = canvas.getContext('2d', { alpha: true });
+  if (!context) return;
+  canvas.dataset.initialized = 'true';
+
+  const palettes = {
+    midnight: { rgb: '115,216,199', line: .18, nodeAlpha: .64, glowAlpha: .34, glowBlur: 8 },
+    aurora: { rgb: '102,231,239', line: .19, nodeAlpha: .64, glowAlpha: .34, glowBlur: 8 },
+    emerald: { rgb: '85,224,193', line: .18, nodeAlpha: .64, glowAlpha: .34, glowBlur: 8 },
+    cosmic: { rgb: '160,157,255', line: .19, nodeAlpha: .64, glowAlpha: .34, glowBlur: 8 },
+    light: { rgb: '24,95,208', lineRgb: '0,155,224', line: .30, nodeAlpha: .94, glowAlpha: .78, glowBlur: 10 }
+  };
+  const mobileQuery = window.matchMedia('(max-width: 700px)');
+  const tabletQuery = window.matchMedia('(min-width: 701px) and (max-width: 1024px)');
+  const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const pointerQuery = window.matchMedia('(any-hover: hover) and (any-pointer: fine)');
+  let motionReduced = motionQuery.matches;
+  let width = 0;
+  let height = 0;
+  let particles = [];
+  let frameId = 0;
+  let resizeFrameId = 0;
+  let lastFrame = 0;
+  const pointer = { x: 0, y: 0, active: false };
+
+  const getNetworkProfile = () => {
+    const compactViewport = mobileQuery.matches || (width <= 900 && height <= 500);
+    if (compactViewport) return { count: 25, connection: 135, nodeRadius: 1.9, lineWidth: 1.1 };
+    if (tabletQuery.matches) return { count: 42, connection: 160, nodeRadius: 2, lineWidth: 1.15 };
+    return { count: 60, connection: 192, nodeRadius: 2.1, lineWidth: 1.2 };
+  };
+
+  const createParticles = (count) => {
+    const rows = Math.max(1, Math.round(Math.sqrt(count * height / Math.max(width, 1))));
+    const basePerRow = Math.floor(count / rows);
+    const extraRows = count % rows;
+    const result = [];
+    for (let row = 0; row < rows; row += 1) {
+      const rowCount = basePerRow + (row < extraRows ? 1 : 0);
+      for (let column = 0; column < rowCount; column += 1) {
+        const cellWidth = width / rowCount;
+        const cellHeight = height / rows;
+        result.push({
+          x: (column + .25 + Math.random() * .5) * cellWidth,
+          y: (row + .25 + Math.random() * .5) * cellHeight,
+          vx: (Math.random() - .5) * .012,
+          vy: (Math.random() - .5) * .012
+        });
+      }
+    }
+    return result;
+  };
+
+  const resizeCanvas = () => {
+    const previousWidth = width;
+    const previousHeight = height;
+    width = window.innerWidth;
+    height = window.innerHeight;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    context.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const { count } = getNetworkProfile();
+    if (particles.length === count && previousWidth > 0 && previousHeight > 0) {
+      const scaleX = width / previousWidth;
+      const scaleY = height / previousHeight;
+      particles.forEach((particle) => {
+        particle.x *= scaleX;
+        particle.y *= scaleY;
+      });
+    } else {
+      particles = createParticles(count);
+    }
+    drawNetwork(0, false);
+  };
+
+  const scheduleResize = () => {
+    if (resizeFrameId) return;
+    resizeFrameId = window.requestAnimationFrame(() => {
+      resizeFrameId = 0;
+      resizeCanvas();
+    });
+  };
+
+  let dprQuery;
+  const refreshDprQuery = () => {
+    if (dprQuery) dprQuery.removeEventListener('change', onDprChange);
+    dprQuery = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
+    dprQuery.addEventListener('change', onDprChange);
+  };
+  const onDprChange = () => {
+    scheduleResize();
+    refreshDprQuery();
+  };
+  refreshDprQuery();
+
+  const drawNetwork = (time, animate) => {
+    context.clearRect(0, 0, width, height);
+    const palette = palettes[body.dataset.theme] || palettes.midnight;
+    const profile = getNetworkProfile();
+    const maxDistance = profile.connection;
+    const delta = lastFrame ? Math.min(time - lastFrame, 32) : 16.7;
+    if (animate) lastFrame = time;
+
+    const points = particles.map((particle) => {
+      if (animate) {
+        particle.x += particle.vx * delta;
+        particle.y += particle.vy * delta;
+        if (particle.x < 0 || particle.x > width) particle.vx *= -1;
+        if (particle.y < 0 || particle.y > height) particle.vy *= -1;
+        particle.x = Math.max(0, Math.min(width, particle.x));
+        particle.y = Math.max(0, Math.min(height, particle.y));
+      }
+
+      let x = particle.x;
+      let y = particle.y;
+      if (!motionReduced && pointer.active) {
+        const dx = x - pointer.x;
+        const dy = y - pointer.y;
+        const distance = Math.hypot(dx, dy);
+        if (distance > 0 && distance < 150) {
+          const shift = ((150 - distance) / 150) * 7;
+          x += (dx / distance) * shift;
+          y += (dy / distance) * shift;
+        }
+      }
+      return { x, y };
+    });
+
+    context.lineWidth = profile.lineWidth + (body.dataset.theme === 'light' ? .15 : 0);
+    for (let i = 0; i < points.length; i += 1) {
+      for (let j = i + 1; j < points.length; j += 1) {
+        const dx = points[i].x - points[j].x;
+        const dy = points[i].y - points[j].y;
+        const distance = Math.hypot(dx, dy);
+        if (distance >= maxDistance) continue;
+        context.strokeStyle = `rgba(${palette.lineRgb || palette.rgb}, ${(1 - distance / maxDistance) * palette.line})`;
+        context.beginPath();
+        context.moveTo(points[i].x, points[i].y);
+        context.lineTo(points[j].x, points[j].y);
+        context.stroke();
+      }
+    }
+
+    context.fillStyle = `rgba(${palette.rgb}, ${palette.nodeAlpha})`;
+    context.shadowColor = `rgba(${palette.rgb}, ${palette.glowAlpha})`;
+    context.shadowBlur = palette.glowBlur;
+    points.forEach(({ x, y }) => {
+      context.beginPath();
+      context.arc(x, y, profile.nodeRadius, 0, Math.PI * 2);
+      context.fill();
+    });
+    context.shadowBlur = 0;
+  };
+
+  const animate = (time) => {
+    frameId = 0;
+    if (document.hidden || motionReduced) return;
+    drawNetwork(time, true);
+    frameId = window.requestAnimationFrame(animate);
+  };
+
+  const startAnimation = () => {
+    if (!motionReduced && !document.hidden && !frameId) {
+      lastFrame = 0;
+      frameId = window.requestAnimationFrame(animate);
+    }
+  };
+
+  const stopAnimation = () => {
+    if (frameId) window.cancelAnimationFrame(frameId);
+    frameId = 0;
+    lastFrame = 0;
+  };
+
+  window.addEventListener('resize', scheduleResize, { passive: true });
+  window.addEventListener('orientationchange', scheduleResize, { passive: true });
+  window.visualViewport?.addEventListener('resize', scheduleResize, { passive: true });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stopAnimation();
+    else {
+      scheduleResize();
+      startAnimation();
+    }
+  });
+  window.addEventListener('pageshow', scheduleResize, { passive: true });
+  motionQuery.addEventListener('change', (event) => {
+    motionReduced = event.matches;
+    if (motionReduced) {
+      stopAnimation();
+      drawNetwork(0, false);
+    } else {
+      startAnimation();
+    }
+  });
+  mobileQuery.addEventListener('change', scheduleResize);
+  tabletQuery.addEventListener('change', scheduleResize);
+  new MutationObserver(() => {
+    if (motionReduced) drawNetwork(0, false);
+  }).observe(body, { attributes: true, attributeFilter: ['data-theme'] });
+
+  const onPointerMove = (event) => {
+      if (event.pointerType === 'touch') return;
+      pointer.x = event.clientX;
+      pointer.y = event.clientY;
+      pointer.active = true;
+  };
+  const onPointerLeave = () => { pointer.active = false; };
+  let pointerListenersActive = false;
+  const syncPointerListeners = () => {
+    if (pointerQuery.matches && !pointerListenersActive) {
+      window.addEventListener('pointermove', onPointerMove, { passive: true });
+      window.addEventListener('pointerleave', onPointerLeave, { passive: true });
+      pointerListenersActive = true;
+    } else if (!pointerQuery.matches && pointerListenersActive) {
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerleave', onPointerLeave);
+      pointer.active = false;
+      pointerListenersActive = false;
+    }
+  };
+  pointerQuery.addEventListener('change', syncPointerListeners);
+  syncPointerListeners();
+
+  resizeCanvas();
+  startAnimation();
+})();
 
 [[themeTrigger, themeMenu]].forEach(([trigger, menu]) => {
   if (!trigger || !menu) return;
@@ -74,27 +384,43 @@ applyTheme(savedTheme, { persist: false });
   });
 });
 
-themeOptions.forEach((option) => {
-  option.addEventListener('click', () => {
-    applyTheme(option.dataset.themeChoice);
-    closeThemeMenu(themeMenu, themeTrigger);
-    closeThemeMenu(mobileThemeMenu, mobileThemeTrigger);
-  });
-  option.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      applyTheme(option.dataset.themeChoice);
-      closeThemeMenu(themeMenu, themeTrigger);
-      closeThemeMenu(mobileThemeMenu, mobileThemeTrigger);
+const activateThemeOption = (option) => {
+  if (option.hasAttribute('data-theme-auto')) selectAutoTheme();
+  else selectManualTheme(option.dataset.themeChoice);
+  closeThemeMenu(themeMenu, themeTrigger);
+  closeThemeMenu(mobileThemeMenu, mobileThemeTrigger);
+};
+
+[...themeOptions, ...autoThemeOptions].forEach((option) => {
+  option.addEventListener('click', () => activateThemeOption(option));
+  option.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      const menu = option.closest('[role="menu"]');
+      const trigger = menu === mobileThemeMenu ? mobileThemeTrigger : themeTrigger;
+      closeThemeMenu(menu, trigger);
+      trigger?.focus();
+      return;
     }
-    if (e.key === 'Escape') {
-      closeThemeMenu(themeMenu, themeTrigger);
-      closeThemeMenu(mobileThemeMenu, mobileThemeTrigger);
-    }
+
+    const menu = option.closest('[role="menu"]');
+    const items = menu ? [...menu.querySelectorAll('[role="menuitemradio"]')] : [];
+    const index = items.indexOf(option);
+    if (index < 0) return;
+
+    let nextIndex;
+    if (event.key === 'ArrowDown' || event.key === 'ArrowRight') nextIndex = (index + 1) % items.length;
+    else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') nextIndex = (index - 1 + items.length) % items.length;
+    else if (event.key === 'Home') nextIndex = 0;
+    else if (event.key === 'End') nextIndex = items.length - 1;
+    else return;
+
+    event.preventDefault();
+    items[nextIndex].focus();
   });
 });
 
 document.addEventListener('click', (e) => {
+  if (nav?.classList.contains('is-open') && !navPanel?.contains(e.target) && !navToggle?.contains(e.target)) closeMenu();
   if (themeMenu && !themeMenu.hidden && !themeMenu.contains(e.target) && !themeTrigger?.contains(e.target)) closeThemeMenu(themeMenu, themeTrigger);
   if (mobileThemeMenu && !mobileThemeMenu.hidden && !mobileThemeMenu.contains(e.target) && !mobileThemeTrigger?.contains(e.target)) closeThemeMenu(mobileThemeMenu, mobileThemeTrigger);
 });
@@ -294,37 +620,48 @@ renderProjects();
 
 const SKILLSETS = {
   data: {
-    name: 'Data Analytics',
-    eyebrow: 'Data Analytics Skills',
-    title: 'Tools I use to work with, analyze, and communicate data.',
-    badge: 'DATA TOOLKIT',
+    name: 'Data Analysis',
+    eyebrow: 'Data Analysis Skills',
+    title: 'Tools I use to prepare, query, analyze, and communicate data.',
+    badge: 'DATA ANALYSIS',
     skills: [
-      ['Advanced Excel', 'Used for practical data preparation, analysis, formulas, pivot tables, and reporting.'],
-      ['SQL Server', 'Used to query, transform, aggregate, clean, and analyze structured business data.'],
-      ['Tableau', 'Used to build interactive dashboards and communicate analytical stories visually.'],
-      ['Google Looker Studio', 'Used to create interactive reports and connect data into shareable business dashboards.'],
-      ['Power BI', 'Used to create business intelligence reports, data models, and interactive views.'],
-      ['Python', 'Used to automate analysis workflows, preprocess datasets, and support exploratory analysis.']
+      ['Excel', 'Used for practical data preparation, analysis, formulas, pivot tables, and reporting.', 'Can demonstrate'],
+      ['SQL Server', 'Used to query, transform, aggregate, clean, and analyze structured business data.', 'Can demonstrate'],
+      ['Python', 'Used to automate analysis workflows and preprocess datasets.', 'Can demonstrate'],
+      ['Pandas & NumPy', 'Used for data manipulation, numerical analysis, and exploratory workflows.', 'Can demonstrate'],
+      ['Power BI & DAX', 'Used to create business intelligence reports, data models, measures, and interactive views.', 'Can demonstrate'],
+      ['Tableau', 'Used to build interactive dashboards and communicate analytical stories visually.', 'Can demonstrate'],
+      ['Google Looker Studio', 'Used to create interactive reports and connect data into shareable business dashboards.', 'Currently practicing'],
+      ['Data Cleaning', 'Used to clean and transform datasets; shown in the Retail Sales & Profit Performance project.', 'Can demonstrate'],
+      ['EDA', 'Used for exploratory data analysis to explore and interpret datasets to uncover useful patterns.', 'Currently practicing']
     ]
   },
   ai: {
     name: 'AI Specialist',
     eyebrow: 'AI Specialist Skills',
     title: 'A learning path from data-science foundations to production-oriented AI systems.',
-    badge: 'IN PROGRESS',
-    skills: [
-      ['Python & DS Foundations', 'Used to build programming and data-science foundations for AI work.'],
-      ['Data Analysis', 'Used to clean, explore, interpret, and communicate data for AI workflows.'],
-      ['Stats & ML', 'Used to understand uncertainty, relationships, prediction, and machine-learning workflows.'],
-      ['Deep Learning', 'Used to learn neural-network approaches for complex pattern recognition and prediction.'],
-      ['NLP', 'Used to process and understand language for text-based analysis and applications.'],
-      ['Transformers & LLMs', 'Used to understand modern language models, attention, and generative AI systems.'],
-      ['Prompt Eng. & LLM APIs', 'Used to design effective instructions and interact with LLMs programmatically.'],
-      ['LLM API Integration', 'Used to connect LLM capabilities to applications, workflows, and structured outputs.'],
-      ['Agentic AI & RAG', 'Used to build AI systems that retrieve relevant knowledge and use tools to act.'],
-      ['LangChain', 'Used to compose LLM workflows with prompts, retrievers, tools, memory, and application logic.'],
-      ['AI Agents & MCP', 'Used to build tool-using agents and connect AI systems with external tools and context.'],
-      ['Multi-Agent Systems & Production', 'Used to coordinate specialized agents and move AI solutions toward reliable production workflows.']
+    badge: 'CURRENTLY LEARNING',
+    groups: [
+      { label: 'AI & Machine Learning Foundations', status: 'Currently learning', skills: [
+        ['Python & DS Foundations', 'Used to build programming and data-science foundations for AI work.'],
+        ['Data Analysis', 'Used to clean, explore, interpret, and communicate data for AI workflows.'],
+        ['Stats & ML', 'Used to understand uncertainty, relationships, prediction, and machine-learning workflows.'],
+        ['Deep Learning', 'Used to learn neural-network approaches for complex pattern recognition and prediction.']
+      ]},
+      { label: 'Generative AI & LLMs', status: 'Currently learning', skills: [
+        ['NLP', 'Used to process and understand language for text-based analysis and applications.'],
+        ['LLMs & Transformers', 'Used to understand modern language models, transformer architectures, and generative AI systems.'],
+        ['LLM API Integration', 'Used to connect LLM capabilities to applications, workflows, and structured outputs.'],
+        ['Prompt Engineering', 'Used to design, test, and refine prompts to guide useful and reliable model responses.']
+      ]},
+      { label: 'Agentic AI & RAG', status: 'Currently learning', skills: [
+        ['Agentic AI & RAG', 'Used to build AI systems that retrieve relevant knowledge and take tool-assisted actions.'],
+        ['LangChain', 'Used to compose LLM workflows with prompts, retrievers, tools, memory, and application logic.'],
+        ['AI Agents & MCP', 'Used to build tool-using agents and connect AI systems with external tools and context through MCP.']
+      ]},
+      { label: 'Multi-Agent Systems & Production', status: 'Currently learning', skills: [
+        ['Multi-Agent Systems & Production', 'Used to coordinate specialized agents and move AI solutions toward reliable production workflows.'],
+      ]}
     ]
   }
 };
@@ -342,7 +679,7 @@ function initSkillToolkit() {
   if (!toolkit || !orbit || !chipLayer || !grid || !buttons.length) return;
 
   let chips = [];
-  let currentMode = 'data';
+  let currentMode = 'ai';
   let flowSvg = null;
 
   const ensureFlowSvg = () => {
@@ -358,52 +695,49 @@ function initSkillToolkit() {
   const layoutChips = () => {
     const rect = orbit.getBoundingClientRect();
     const size = Math.min(rect.width, rect.height);
-    // The viewer's choice controls the scale of the circular flow.
-    // Data Analytics stays compact; the 12-step AI Specialist path gets a
-    // wider ring so every skill has readable breathing room.
-    const radius = (() => {
-      if (size <= 420) {
-        return currentMode === 'ai'
-          ? Math.min(size * 0.38, size / 2 - 34)
-          : Math.min(size * 0.36, size / 2 - 30);
-      }
-      if (size <= 620) {
-        return currentMode === 'ai'
-          ? Math.min(size * 0.38, size / 2 - 42)
-          : Math.min(size * 0.36, size / 2 - 36);
-      }
-      if (size <= 760) {
-        return currentMode === 'ai'
-          ? Math.min(size * 0.37, size / 2 - 86)
-          : Math.min(size * 0.34, size / 2 - 72);
-      }
-      return currentMode === 'ai'
-        ? Math.max(155, size * 0.40)
-        : Math.max(120, size * 0.34);
-    })();
+    const count = chips.length;
+    if (!size || !count) return 0;
+    const maxChipWidth = Math.max(42, Math.min(190, size * 0.84 * Math.sin(Math.PI / count)));
     chips.forEach((chip) => {
-      chip.radius = radius;
+      chip.element.style.setProperty('--skill-chip-max-width', maxChipWidth.toFixed(1) + 'px');
     });
-    return { size, radius };
+    const widestChip = chips.reduce((widest, chip) => Math.max(widest, chip.element.getBoundingClientRect().width), 0);
+    const tallestChip = chips.reduce((tallest, chip) => Math.max(tallest, chip.element.getBoundingClientRect().height), 0);
+    const safeRadius = Math.max(0, size / 2 - Math.max(widestChip, tallestChip) / 2 - 8);
+    const radius = Math.min(size * 0.46, safeRadius);
+    const spans = chips.map((chip) => {
+      const rect = chip.element.getBoundingClientRect();
+      return rect.width * Math.abs(Math.sin(chip.baseAngle)) + rect.height * Math.abs(Math.cos(chip.baseAngle)) + 6;
+    });
+    const totalSpan = spans.reduce((total, span) => total + span, 0);
+    let angle = chips[0].baseAngle;
+    chips.forEach((chip, index) => {
+      chip.radius = radius;
+      chip.angle = angle;
+      const next = (index + 1) % chips.length;
+      angle += ((spans[index] + spans[next]) / 2 / totalSpan) * Math.PI * 2;
+    });
+    orbit.style.setProperty('--skill-ring-diameter', (radius * 2).toFixed(1) + 'px');
+    return radius;
   };
 
   const placeChip = (chip) => {
     const x = Math.cos(chip.angle) * chip.radius;
     const y = Math.sin(chip.angle) * chip.radius;
-    chip.element.style.transform = `translate3d(calc(-50% + ${x.toFixed(2)}px), calc(-50% + ${y.toFixed(2)}px), 0)`;
+    chip.element.style.setProperty('transform', 'translate3d(calc(-50% + ' + x.toFixed(2) + 'px), calc(-50% + ' + y.toFixed(2) + 'px), 0)', 'important');
   };
 
-  const renderFlowArrows = (count, radius) => {
+  const renderFlowArrows = () => {
     const svg = ensureFlowSvg();
     const size = Math.min(orbit.clientWidth, orbit.clientHeight);
+    if (!size) return;
     const center = size / 2;
-    const r = Math.min(radius + 4, center - 12);
     svg.replaceChildren();
-    svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+    svg.setAttribute('viewBox', '0 0 ' + size + ' ' + size);
     svg.setAttribute('width', size);
     svg.setAttribute('height', size);
-    svg.style.width = `${size}px`;
-    svg.style.height = `${size}px`;
+    svg.style.width = size + 'px';
+    svg.style.height = size + 'px';
 
     const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
     const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
@@ -421,18 +755,22 @@ function initSkillToolkit() {
     defs.appendChild(marker);
     svg.appendChild(defs);
 
-    // Short clockwise arc between every adjacent skill, matching the
-    // reference image's circular process-flow language without crossing labels.
-    const step = (Math.PI * 2) / count;
-    for (let i = 0; i < count; i += 1) {
-      const a1 = -Math.PI / 2 + i * step + step * 0.18;
-      const a2 = -Math.PI / 2 + (i + 1) * step - step * 0.18;
-      const x1 = center + Math.cos(a1) * r;
-      const y1 = center + Math.sin(a1) * r;
-      const x2 = center + Math.cos(a2) * r;
-      const y2 = center + Math.sin(a2) * r;
+    // Keep one clockwise circular flow in both toolkit modes.
+    const ringRadius = chips[0]?.radius ?? 0;
+    const r = Math.min(ringRadius + 4, center - 12);
+    chips.forEach((_, index) => {
+      const a1 = chips[index].angle;
+      let a2 = chips[(index + 1) % chips.length].angle;
+      if (a2 <= a1) a2 += Math.PI * 2;
+      const segment = a2 - a1;
+      const startAngle = a1 + segment * 0.18;
+      const endAngle = a2 - segment * 0.18;
+      const x1 = center + Math.cos(startAngle) * r;
+      const y1 = center + Math.sin(startAngle) * r;
+      const x2 = center + Math.cos(endAngle) * r;
+      const y2 = center + Math.sin(endAngle) * r;
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      path.setAttribute('d', `M ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r.toFixed(2)} ${r.toFixed(2)} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`);
+      path.setAttribute('d', 'M ' + x1.toFixed(2) + ' ' + y1.toFixed(2) + ' A ' + r.toFixed(2) + ' ' + r.toFixed(2) + ' 0 0 1 ' + x2.toFixed(2) + ' ' + y2.toFixed(2));
       path.setAttribute('fill', 'none');
       path.setAttribute('stroke', 'rgba(115,216,199,.46)');
       path.setAttribute('stroke-width', '1.4');
@@ -440,11 +778,12 @@ function initSkillToolkit() {
       path.setAttribute('marker-end', 'url(#skillFlowArrow)');
       path.style.color = 'rgba(115,216,199,.78)';
       svg.appendChild(path);
-    }
+    });
   };
-
   const renderMode = (mode) => {
     const set = SKILLSETS[mode] || SKILLSETS.data;
+    const skillGroups = set.groups || [{ label: '', skills: set.skills || [] }];
+    const skills = skillGroups.flatMap((group) => group.skills);
     currentMode = mode;
     toolkit.dataset.mode = mode;
     modeName.textContent = set.name;
@@ -460,35 +799,46 @@ function initSkillToolkit() {
 
     chipLayer.replaceChildren();
     chips = [];
-    const count = set.skills.length;
+    const ringSkills = [...new Map(skills.map((skill) => [skill[0].trim().toLocaleLowerCase(), skill])).values()];
+    const count = ringSkills.length;
 
-    // Every toolkit now follows one clockwise circular sequence, exactly like
-    // a process-flow diagram: 1 → 2 → 3 → ... → last → 1.
-    set.skills.forEach(([name, use], index) => {
+    // Every toolkit skill appears once around one responsive circular path.
+    ringSkills.forEach(([name, use], index) => {
       const angle = (index / count) * Math.PI * 2 - Math.PI / 2;
       const chip = document.createElement('span');
       chip.className = 'skill-chip skill-chip-outer';
       chip.textContent = name;
       chip.title = use;
-      chip.setAttribute('aria-label', `${name}: ${use}`);
+      chip.setAttribute('aria-label', name + ': ' + use);
       chip.dataset.skill = name;
       chip.dataset.step = String(index + 1);
       chipLayer.appendChild(chip);
-      chips.push({ element: chip, angle, radius: 0 });
+      chips.push({ element: chip, angle, baseAngle: angle, radius: 0 });
     });
-
     grid.replaceChildren();
-    set.skills.forEach(([name, use], index) => {
-      const item = document.createElement('article');
-      item.className = 'skillset-item';
-      item.style.setProperty('--skill-delay', `${index * 35}ms`);
-      item.innerHTML = `<div class="skillset-item-number">${String(index + 1).padStart(2, '0')}</div><div><h4>${name}</h4><p>${use}</p></div>`;
-      grid.appendChild(item);
+    let skillIndex = 0;
+    skillGroups.forEach((group) => {
+      if (group.label) {
+        const heading = document.createElement('p');
+        heading.className = 'eyebrow';
+        heading.textContent = group.label;
+        heading.style.gridColumn = '1 / -1';
+        grid.appendChild(heading);
+      }
+      group.skills.forEach(([name, use, status]) => {
+        const item = document.createElement('article');
+        item.className = 'skillset-item';
+        item.style.setProperty('--skill-delay', `${skillIndex * 35}ms`);
+        skillIndex += 1;
+        const itemStatus = status || group.status || "";
+        const statusMarkup = itemStatus ? `<span class="skillset-status">${itemStatus}</span>` : "";
+        item.innerHTML = `<div class="skillset-item-number">${String(skillIndex).padStart(2, '0')}</div><div><h4>${name}</h4>${statusMarkup}<p>${use}</p></div>`;
+        grid.appendChild(item);
+      });
     });
-
-    const { radius } = layoutChips();
+    layoutChips();
     chips.forEach(placeChip);
-    renderFlowArrows(count, radius);
+    renderFlowArrows();
   };
 
   buttons.forEach((button) => {
@@ -496,9 +846,9 @@ function initSkillToolkit() {
   });
 
   const resizeObserver = new ResizeObserver(() => {
-    const { radius } = layoutChips();
+    layoutChips();
     chips.forEach(placeChip);
-    if (chips.length) renderFlowArrows(chips.length, radius);
+    if (chips.length) renderFlowArrows();
   });
   resizeObserver.observe(orbit);
 
@@ -533,24 +883,29 @@ window.setTimeout(() => {
   }
 }, reduceMotion ? 250 : 1250);
 
-function createPetal(delay = 0) {
-  if (!petalLayer) return;
-  const p = document.createElement('span');
-  p.className = 'petal';
-  p.style.left = Math.random() * 100 + 'vw';
-  p.style.setProperty('--drift', ((Math.random() - 0.5) * 260) + 'px');
-  p.style.animationDuration = (8 + Math.random() * 10) + 's';
-  p.style.animationDelay = delay + 's';
-  p.style.transform = `rotate(${Math.random() * 360}deg)`;
-  petalLayer.appendChild(p);
-  window.setTimeout(() => p.remove(), 20000);
-}
+const spotlight = document.getElementById('cursorSpotlight');
+const canTrackSpotlight = spotlight
+  && !reduceMotion
+  && window.matchMedia('(any-hover: hover) and (any-pointer: fine)').matches;
 
-if (!reduceMotion) {
-  for (let i = 0; i < 22; i++) createPetal(-Math.random() * 15);
-  window.setInterval(() => createPetal(), 650);
-}
+if (canTrackSpotlight) {
+  let pointerX = -1000;
+  let pointerY = -1000;
+  let spotlightFrame = 0;
 
+  window.addEventListener('pointermove', (event) => {
+    if (event.pointerType === 'touch') return;
+    pointerX = event.clientX;
+    pointerY = event.clientY;
+    if (spotlightFrame) return;
+
+    spotlightFrame = window.requestAnimationFrame(() => {
+      spotlight.style.setProperty('--spotlight-x', pointerX + 'px');
+      spotlight.style.setProperty('--spotlight-y', pointerY + 'px');
+      spotlightFrame = 0;
+    });
+  }, { passive: true });
+}
 const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) entry.target.classList.add('visible');
@@ -576,7 +931,7 @@ sections.forEach((s) => sectionObserver.observe(s));
 // position instead of relying on IntersectionObserver entry order. This keeps
 // the underline/glow reliable for every navigation item, including short or
 // unusually tall sections.
-const sectionIds = ['about', 'skills', 'learning', 'certificate', 'projects', 'journey', 'interests', 'contact'];
+const sectionIds = ['about', 'learning', 'skills', 'projects', 'journey', 'interests', 'certificate', 'education', 'contact'];
 const observedNavSections = sectionIds
   .map((id) => document.getElementById(id))
   .filter(Boolean);
