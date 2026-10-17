@@ -704,7 +704,7 @@ function initSkillToolkit() {
     const widestChip = chips.reduce((widest, chip) => Math.max(widest, chip.element.getBoundingClientRect().width), 0);
     const tallestChip = chips.reduce((tallest, chip) => Math.max(tallest, chip.element.getBoundingClientRect().height), 0);
     const safeRadius = Math.max(0, size / 2 - Math.max(widestChip, tallestChip) / 2 - 8);
-    const radius = Math.min(size * 0.46, safeRadius);
+    let radius = Math.min(size * 0.46, safeRadius);
     const spans = chips.map((chip) => {
       const rect = chip.element.getBoundingClientRect();
       return rect.width * Math.abs(Math.sin(chip.baseAngle)) + rect.height * Math.abs(Math.cos(chip.baseAngle)) + 6;
@@ -717,6 +717,37 @@ function initSkillToolkit() {
       const next = (index + 1) % chips.length;
       angle += ((spans[index] + spans[next]) / 2 / totalSpan) * Math.PI * 2;
     });
+    if (toolkit.dataset.mode === 'ai' && window.matchMedia('(max-width: 600px)').matches) {
+      const orbitCenterX = rect.left + size / 2;
+      const maxRadius = Math.min(orbitCenterX, window.innerWidth - orbitCenterX) - widestChip / 2 - 3;
+      const center = toolkit.querySelector('.skill-center').getBoundingClientRect();
+      const minimumGapAt = (candidateRadius) => {
+        const boxes = chips.map((chip) => {
+          const box = chip.element.getBoundingClientRect();
+          const x = orbitCenterX + Math.cos(chip.angle) * candidateRadius;
+          const y = rect.top + size / 2 + Math.sin(chip.angle) * candidateRadius;
+          return { left: x - box.width / 2, right: x + box.width / 2, top: y - box.height / 2, bottom: y + box.height / 2 };
+        });
+        if (boxes.some((box) => box.left < center.right && box.right > center.left && box.top < center.bottom && box.bottom > center.top)) return 0;
+        let minimumGap = Infinity;
+        boxes.forEach((box, index) => {
+          boxes.slice(index + 1).forEach((other) => {
+            const gapX = Math.max(box.left - other.right, other.left - box.right, 0);
+            const gapY = Math.max(box.top - other.bottom, other.top - box.bottom, 0);
+            minimumGap = Math.min(minimumGap, Math.hypot(gapX, gapY));
+          });
+        });
+        return minimumGap;
+      };
+      for (let candidateRadius = radius; candidateRadius <= maxRadius; candidateRadius += 0.25) {
+        const gap = minimumGapAt(candidateRadius);
+        if (gap >= 5 && gap <= 6) {
+          radius = candidateRadius;
+          break;
+        }
+      }
+    }
+    chips.forEach((chip) => { chip.radius = radius; });
     orbit.style.setProperty('--skill-ring-diameter', (radius * 2).toFixed(1) + 'px');
     return radius;
   };
@@ -1133,6 +1164,8 @@ document.addEventListener('keydown', (e) => {
 const profileCard = document.getElementById('profileCard');
 const profileDepth = document.getElementById('photoDepth');
 const profileVideo = document.getElementById('profileVideo');
+const companionTag = document.getElementById('aiCompanionTag');
+const companionMessage = companionTag?.querySelector('[aria-live="polite"]');
 if (profileDepth && profileCard && profileVideo) {
   const videoCard = profileVideo.closest('[data-video-src]');
   const videoSrc = videoCard?.dataset.videoSrc || 'assets/profile-video.mp4';
@@ -1158,6 +1191,11 @@ if (profileDepth && profileCard && profileVideo) {
     profileDepth.setAttribute('aria-label', flipped
       ? 'Profile video of Mohammed Manzoor Ul Hassan. Tap or click to return to the profile photo.'
       : 'Profile photo of Mohammed Manzoor Ul Hassan, Data Analyst. Tap or click to play the profile video.');
+    if (companionMessage) {
+      companionMessage.textContent = flipped
+        ? '✨ Secret unlocked'
+        : '🤖 Tap to discover';
+    }
     window.clearTimeout(setFlipped._timer);
     setFlipped._timer = window.setTimeout(() => profileDepth.classList.remove('is-flipping'), 700);
   }
@@ -1212,6 +1250,8 @@ if (profileDepth && profileCard && profileVideo) {
     if (profileDepth.classList.contains('is-flipped')) stopProfileVideo();
     else playProfileVideo();
   }
+
+  companionTag?.addEventListener('click', toggleProfileCard);
 
   profileVideo.addEventListener('ended', () => stopProfileVideo({returnToFront: true}));
   profileVideo.addEventListener('error', () => {
