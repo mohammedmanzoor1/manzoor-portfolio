@@ -105,25 +105,27 @@
         </div>
       </div>
       <div class="hero-photo-wrap" id="heroPhoto">
-        <div class="orbit orbit-one" aria-hidden="true"></div>
-        <div class="orbit orbit-two" aria-hidden="true"></div>
-        <div class="photo-depth" id="photoDepth" tabindex="0" role="button" aria-label="Profile photo of Mohammed Manzoor Ul Hassan, Data Analyst. Click to flip and play the profile video on desktop or double-tap on touch devices." aria-pressed="false">
-          <div class="photo-plane photo-plane-back" aria-hidden="true"></div>
-          <div class="photo-flip" id="profileFlip">
-            <div class="photo-face photo-face-front">
-              <div class="photo-card photo-card-front" id="profileCard">
-                <img src="assets/profile.jpeg" alt="Portrait of Mohammed Manzoor Ul Hassan, Data Analyst" width="410" height="513">
-                <div class="photo-tag">AI SPECIALIST</div>
+        <div class="hero-photo-stage">
+          <div class="orbit orbit-one" aria-hidden="true"></div>
+          <div class="orbit orbit-two" aria-hidden="true"></div>
+          <div class="photo-depth" id="photoDepth" tabindex="0" role="button" aria-label="Profile photo of Mohammed Manzoor Ul Hassan, Data Analyst. Click to flip and play the profile video on desktop or double-tap on touch devices." aria-pressed="false">
+            <div class="photo-plane photo-plane-back" aria-hidden="true"></div>
+            <div class="photo-flip" id="profileFlip">
+              <div class="photo-face photo-face-front">
+                <div class="photo-card photo-card-front" id="profileCard">
+                  <img src="assets/profile.jpeg" alt="Portrait of Mohammed Manzoor Ul Hassan, Data Analyst" width="410" height="513">
+                  <div class="photo-tag">AI SPECIALIST</div>
+                </div>
+              </div>
+              <div class="photo-face photo-face-back" aria-hidden="true">
+                <div class="photo-card photo-card-back" data-video-src="assets/profile-video.mp4">
+                  <video class="profile-video" id="profileVideo" src="assets/profile-video.mp4" playsinline preload="metadata" poster="assets/profile.jpeg" aria-label="Mohammed Manzoor Ul Hassan profile video"></video>
+                  <div class="photo-tag photo-tag-video">AI SPECIALIST</div>
+                </div>
               </div>
             </div>
-            <div class="photo-face photo-face-back" aria-hidden="true">
-              <div class="photo-card photo-card-back" data-video-src="assets/profile-video.mp4">
-                <video class="profile-video" id="profileVideo" src="assets/profile-video.mp4" playsinline preload="metadata" poster="assets/profile.jpeg" aria-label="Mohammed Manzoor Ul Hassan profile video"></video>
-                <div class="photo-tag photo-tag-video">AI SPECIALIST</div>
-              </div>
-            </div>
+            <div class="photo-plane photo-plane-front" aria-hidden="true"></div>
           </div>
-          <div class="photo-plane photo-plane-front" aria-hidden="true"></div>
         </div>
         <button class="ai-companion-tag" id="aiCompanionTag" type="button">
           <span aria-live="polite">🤖 Tap to discover</span>
