@@ -4159,6 +4159,8 @@ body[data-theme="light"] .hero-photo-wrap .orbit-two {
 }
 
 @media (max-width: 600px) {
+  .hero-photo-wrap .photo-depth { z-index: 1; }
+
   .hero-photo-wrap .orbit-one {
     width: 148%;
     height: 86%;
