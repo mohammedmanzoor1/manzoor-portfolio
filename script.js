@@ -631,9 +631,9 @@ const SKILLSETS = {
       ['Pandas & NumPy', 'Used for data manipulation, numerical analysis, and exploratory workflows.', 'Can demonstrate'],
       ['Power BI & DAX', 'Used to create business intelligence reports, data models, measures, and interactive views.', 'Can demonstrate'],
       ['Tableau', 'Used to build interactive dashboards and communicate analytical stories visually.', 'Can demonstrate'],
-      ['Google Looker Studio', 'Used to create interactive reports and connect data into shareable business dashboards.', 'Currently practicing'],
+      ['Google Looker Studio', 'Used to create interactive reports and connect data into shareable business dashboards.', 'Can demonstrate'],
       ['Data Cleaning', 'Used to clean and transform datasets; shown in the Retail Sales & Profit Performance project.', 'Can demonstrate'],
-      ['EDA', 'Used for exploratory data analysis to explore and interpret datasets to uncover useful patterns.', 'Currently practicing']
+      ['EDA', 'Used for exploratory data analysis to explore and interpret datasets to uncover useful patterns.', 'Can demonstrate']
     ]
   },
   ai: {
